@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rico.bet VIP Day | Simple Mission, Big Rewards</title>
+    <link href="https://fonts.googleapis.com/css2?family=Goldman:wght@400;700&family=Montserrat:wght@300;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #d4af37;
+            --dark-bg: #0a0a0c;
+            --card-bg: rgba(20, 20, 25, 0.95);
+            --neon-blue: #00d4ff;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark-bg);
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            height: 100%;
+        }
+
+        /* Background Visuals */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0c 100%);
+            z-index: -1;
+        }
+
+        /* Entrance Animation Trigger */
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            perspective: 1000px;
+        }
+
+        /* The Menu Card - Opening from Center Effect */
+        #vipMenu {
+            width: 90%;
+            max-width: 500px;
+            background: var(--card-bg);
+            border: 2px solid var(--gold);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(212, 175, 55, 0.2);
+            transform: scale(0); /* Initial State */
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        #vipMenu.open {
+            transform: scale(1);
+        }
+
+        .logo {
+            font-family: 'Goldman', cursive;
+            font-size: 2.5rem;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 5px;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+
+        .slogan {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Menu Items */
+        .menu-section {
+            margin: 20px 0;
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+            padding-top: 20px;
+        }
+
+        .menu-item {
+            background: rgba(255, 255, 255, 0.05);
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: var(--gold);
+            transform: translateX(5px);
+        }
+
+        .item-info { text-align: left; }
+        .item-title { font-weight: 800; color: var(--gold); display: block; }
+        .item-desc { font-size: 0.8rem; color: #ccc; }
+
+        /* Pop-up Voucher Area */
+        #voucherDisplay {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #111;
+            border: 1px dashed var(--gold);
+            animation: fadeIn 0.5s;
+        }
+
+        .code-box {
+            font-family: 'Goldman', cursive;
+            font-size: 1.5rem;
+            color: var(--neon-blue);
+            margin: 10px 0;
+            letter-spacing: 2px;
+        }
+
+        /* Mystery Box Section */
+        .mystery-container {
+            margin-top: 50px;
+            text-align: center;
+            opacity: 0.5;
+            transition: 1s;
+        }
+
+        .mystery-container.unlocked { opacity: 1; transform: scale(1.1); }
+
+        .box-icon {
+            font-size: 60px;
+            cursor: pointer;
+            filter: drop-shadow(0 0 10px var(--gold));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Buttons */
+        .btn-open {
+            padding: 15px 40px;
+            background: var(--gold);
+            color: black;
+            font-weight: 800;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="bg-overlay"></div>
+
+<div class="container">
+    
+    <button class="btn-open" id="openBtn" onclick="openMenu()">OPEN VIP MENU</button>
+
+    <div id="vipMenu">
+        <div class="logo">Rico.bet</div>
+        <div class="slogan">Simple Mission, Big Rewards</div>
+        
+        <p style="font-weight: 300;">Welcome, VIP Player. Choose your privilege for today's mission.</p>
+
+        <div class="menu-section">
+            <div class="menu-item" onclick="claimReward('FOOD')">
+                <div class="item-info">
+                    <span class="item-title">🍱 RESTAURANT VOUCHER</span>
+                    <span class="item-desc">UberEats / iFood Credit</span>
+                </div>
+                <span>SELECT</span>
+            </div>
+
+            <div class="menu-item" onclick="claimReward('BONUS')">
+                <div class="item-info">
+                    <span class="item-title">💰 RELOAD BOOSTER</span>
+                    <span class="item-desc">100% Match Bonus</span>
+                </div>
+                <span>SELECT</span>
+            </div>
+
+            <div class="menu-item" onclick="claimReward('SPINS')">
+                <div class="item-info">
+                    <span class="item-title">🎰 LUCKY SPINS</span>
+                    <span class="item-desc">50 Mega Spins (No Wager)</span>
+                </div>
+                <span>SELECT</span>
+            </div>
+        </div>
+
+        <div id="voucherDisplay">
+            <p id="claimText">UNLOCKED CODE:</p>
+            <div class="code-box" id="codeText">XXXX-XXXX-XXXX</div>
+            <p style="font-size: 0.7rem;">Mission Status: <span style="color: #0f0;">ACTIVE</span>. Redeem via Live Chat.</p>
+        </div>
+    </div>
+
+    <div class="mystery-container" id="mysteryBoxArea">
+        <p id="boxHint">Complete a mission to unlock Mystery Box</p>
+        <div class="box-icon" onclick="openMysteryBox()">🎁</div>
+    </div>
+
+</div>
+
+<script>
+    function openMenu() {
+        document.getElementById('openBtn').classList.add('hidden');
+        const menu = document.getElementById('vipMenu');
+        menu.classList.add('open');
+    }
+
+    function claimReward(type) {
+        const display = document.getElementById('voucherDisplay');
+        const codeText = document.getElementById('codeText');
+        const claimText = document.getElementById('claimText');
+        
+        display.style.display = 'block';
+        
+        // Random Code Generator for effect
+        let code = "";
+        if(type === 'FOOD') {
+            code = "RICO-FOOD-2026";
+            claimText.innerText = "YOUR DINNER VOUCHER:";
+        } else if(type === 'BONUS') {
+            code = "BOOST-VIP-100";
+            claimText.innerText = "YOUR BONUS CODE:";
+        } else {
+            code = "GOLDEN-SPINS-50";
+            claimText.innerText = "YOUR SPINS CODE:";
+        }
+        
+        codeText.innerText = code;
+
+        // Unlock Mystery Box
+        document.getElementById('mysteryBoxArea').classList.add('unlocked');
+        document.getElementById('boxHint').innerText = "MYSTERY BOX UNLOCKED! CLICK TO OPEN";
+        document.getElementById('boxHint').style.color = "#d4af37";
+    }
+
+    function openMysteryBox() {
+        if(document.getElementById('mysteryBoxArea').classList.contains('unlocked')) {
+            alert("CONGRATULATIONS! You found an extra R$50 / MXN 250 in your Mystery Box! Contact your VIP Manager to credit it.");
+        } else {
+            alert("You must select a Menu Item first!");
+        }
+    }
+</script>
+
+</body>
+</html>
