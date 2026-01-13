@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rico.bet VIP Surprise Drop</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --rico-gold: #d4af37;
+            --rico-dark: #0f0f0f;
+            --rico-card: #1c1c1c;
+            --rico-red: #ff4d4d;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--rico-dark);
+            color: white; font-family: 'Segoe UI', sans-serif;
+            overflow: hidden; height: 100vh;
+            touch-action: manipulation;
+        }
+
+        /* --- UI --- */
+        #game-header {
+            position: fixed; top: 0; width: 100%; padding: 15px 0;
+            display: flex; justify-content: space-around; z-index: 10;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+        }
+
+        .score-box {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--rico-gold);
+            padding: 8px 15px; border-radius: 50px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .score-box img { width: 25px; height: 25px; }
+        .score-count { font-weight: bold; font-size: 18px; color: var(--rico-gold); }
+
+        /* --- Game Area --- */
+        #game-canvas { width: 100vw; height: 100vh; position: relative; background: #000; }
+
+        .drop-item {
+            position: absolute; width: 70px; height: 70px; cursor: pointer;
+            filter: drop-shadow(0 0 10px rgba(212,175,55,0.4));
+            z-index: 5;
+        }
+
+        /* --- Booster Logic --- */
+        #booster-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 100;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+        }
+        
+        #booster-img {
+            width: 150px; cursor: pointer; transition: transform 0.05s;
+            filter: drop-shadow(0 0 20px var(--rico-red));
+        }
+
+        .boom-flash {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: white; z-index: 200; display: none;
+        }
+
+        #booster-msg { color: var(--rico-red); font-size: 24px; font-weight: bold; margin-bottom: 20px; text-align: center;}
+
+        /* --- Modals --- */
+        .modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 85%; max-width: 400px; background: var(--rico-card);
+            border: 2px solid var(--rico-gold); border-radius: 20px;
+            padding: 30px; text-align: center; z-index: 1000;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #d4af37 0%, #f9e29c 100%);
+            color: black; border: none; padding: 15px 40px;
+            font-weight: bold; border-radius: 50px; cursor: pointer; margin-top: 20px;
+            text-transform: uppercase;
+        }
+
+        .voucher-display {
+            background: #000; border: 2px dashed var(--rico-gold);
+            padding: 15px; margin: 20px 0; font-size: 22px; font-weight: bold; color: #fff;
+        }
+
+        .hidden { display: none !important; }
+
+        @keyframes shake {
+            0% { transform: translate(0,0); }
+            25% { transform: translate(5px, 5px); }
+            50% { transform: translate(-5px, -5px); }
+            75% { transform: translate(5px, -5px); }
+            100% { transform: translate(0,0); }
+        }
+        .shaking { animation: shake 0.1s infinite; }
+    </style>
+</head>
+<body>
+
+    <audio id="snd-pop" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
+    <audio id="snd-boost-spawn" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
+    <audio id="snd-explode" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
+    <audio id="snd-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
+
+    <div id="flash" class="boom-flash"></div>
+
+    <div id="game-header" class="hidden">
+        <div class="score-box">
+            <img src="https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png">
+            <span id="spin-count" class="score-count">0/5</span>
+        </div>
+        <div class="score-box">
+            <img src="https://ricobr.ft-crm.com/media-api/serve/75eb5a40-f5c7-417d-9bdc-10750938df03_Bonus.png">
+            <span id="credit-count" class="score-count">0/5</span>
+        </div>
+    </div>
+
+    <div id="booster-overlay">
+        <div id="booster-msg">CLICK TO EXPLODE!<br><span style="font-size: 14px; color: white;">UNLOCK 100,000 REWARDS</span></div>
+        <img id="booster-img" src="https://ricobr.ft-crm.com/media-api/serve/f64adfc8-2762-4868-a84f-9e1e79e5dcd0_3.png" onclick="clickBooster()">
+        <p id="boost-timer" style="margin-top: 20px; font-weight: bold;">3.0s</p>
+    </div>
+
+    <div id="start-modal" class="modal">
+        <h1 style="color: var(--rico-gold);">VIP SURPRISE DROP</h1>
+        <p>Catch 5 matching icons to win.<br><b>Watch for the Booster to Double Up!</b></p>
+        <button class="btn" onclick="startGame()">Start Catching</button>
+    </div>
+
+    <div id="result-modal" class="modal hidden">
+        <h1 id="winner-title">REWARD UNLOCKED</h1>
+        <div id="double-badge" class="hidden" style="color: #00ff00; font-weight: bold; margin-bottom: 10px; font-size: 20px;">🔥 DOUBLE REWARDS ACTIVATED 🔥</div>
+        <p>Your Voucher Code:</p>
+        <div id="voucher-code" class="voucher-display">----</div>
+        <button class="btn" onclick="redirectToRico()">Redeem Now</button>
+    </div>
+
+    <div id="game-canvas"></div>
+
+<script>
+    const spinImg = "https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png";
+    const creditImg = "https://ricobr.ft-crm.com/media-api/serve/75eb5a40-f5c7-417d-9bdc-10750938df03_Bonus.png";
+    
+    let scores = { spin: 0, credit: 0 };
+    let gameActive = false;
+    let boosterSpawned = false;
+    let isDoubled = false;
+    let boostClicks = 0;
+    const canvas = document.getElementById('game-canvas');
+
+    function playSnd(id) {
+        const s = document.getElementById(id);
+        s.currentTime = 0;
+        s.play().catch(()=>{}); 
+    }
+
+    function startGame() {
+        document.getElementById('start-modal').classList.add('hidden');
+        document.getElementById('game-header').classList.remove('hidden');
+        gameActive = true;
+        spawnLoop();
+    }
+
+    function spawnLoop() {
+        const interval = setInterval(() => {
+            if (!gameActive) { clearInterval(interval); return; }
+            createItem();
+        }, 700);
+    }
+
+    function createItem() {
+        if (!gameActive) return;
+        const item = document.createElement('img');
+        const isSpin = Math.random() > 0.5;
+        item.src = isSpin ? spinImg : creditImg;
+        item.className = 'drop-item';
+        item.dataset.type = isSpin ? 'spin' : 'credit';
+        item.style.left = Math.random() * (window.innerWidth - 80) + 'px';
+        item.style.top = '-100px';
+        canvas.appendChild(item);
+
+        let pos = -100;
+        let speed = 4 + Math.random() * 3;
+        const fall = setInterval(() => {
+            if (!gameActive) { clearInterval(fall); item.remove(); return; }
+            pos += speed;
+            item.style.top = pos + 'px';
+            if (pos > window.innerHeight) { clearInterval(fall); item.remove(); }
+        }, 20);
+
+        item.onclick = () => handleCatch(item, fall);
+    }
+
+    function handleCatch(item, fall) {
+        playSnd('snd-pop');
+        const type = item.dataset.type;
+        scores[type]++;
+        document.getElementById(type + '-count').innerText = scores[type] + '/5';
+        item.remove();
+        clearInterval(fall);
+
+        // TRIGGER BOOSTER AT 3 CLICKS
+        if ((scores.spin === 3 || scores.credit === 3) && !boosterSpawned) {
+            triggerBoosterEvent();
+        }
+
+        if (scores[type] >= 5) endGame(type);
+    }
+
+    function triggerBoosterEvent() {
+        boosterSpawned = true;
+        gameActive = false;
+        document.getElementById('booster-overlay').style.display = 'flex';
+        playSnd('snd-boost-spawn');
+
+        let timeLeft = 30; // 3.0 seconds
+        const timer = setInterval(() => {
+            timeLeft--;
+            document.getElementById('boost-timer').innerText = (timeLeft/10).toFixed(1) + 's';
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                if (boostClicks < 10) finishBooster(false);
+            }
+        }, 100);
+    }
+
+    function clickBooster() {
+        boostClicks++;
+        playSnd('snd-pop');
+        const img = document.getElementById('booster-img');
+        img.style.transform = 'scale(1.2)';
+        setTimeout(() => img.style.transform = 'scale(1)', 50);
+
+        // Every click adds more shake
+        if (boostClicks > 5) img.classList.add('shaking');
+
+        if (boostClicks >= 10 && !isDoubled) {
+            isDoubled = true;
+            explodeBooster();
+        }
+    }
+
+    function explodeBooster() {
+        playSnd('snd-explode');
+        // Flash effect
+        const flash = document.getElementById('flash');
+        flash.style.display = 'block';
+        setTimeout(() => flash.style.display = 'none', 150);
+        
+        // Explosion particles
+        confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 }, colors: ['#ff0000', '#ffd700'] });
+
+        document.getElementById('booster-msg').innerHTML = "<span style='color:#00ff00'>BOOM! DOUBLE ACTIVATED!</span>";
+        document.getElementById('booster-img').style.display = 'none';
+        
+        setTimeout(() => finishBooster(true), 1500);
+    }
+
+    function finishBooster(success) {
+        document.getElementById('booster-overlay').style.display = 'none';
+        gameActive = true;
+        spawnLoop();
+    }
+
+    function endGame(winner) {
+        gameActive = false;
+        playSnd('snd-win');
+        confetti({ particleCount: 200, spread: 70, origin: { y: 0.6 }, colors: ['#d4af37', '#ffffff'] });
+
+        const resultModal = document.getElementById('result-modal');
+        const voucher = document.getElementById('voucher-code');
+        const title = document.getElementById('winner-title');
+
+        if (isDoubled) {
+            document.getElementById('double-badge').classList.remove('hidden');
+            if (winner === 'spin') {
+                title.innerText = "100,000 FREE SPINS";
+                voucher.innerText = "VIP-DBL-SPIN";
+            } else {
+                title.innerText = "100,000 CREDITS";
+                voucher.innerText = "VIP-DBL-BONUS";
+            }
+        } else {
+            if (winner === 'spin') {
+                title.innerText = "50,000 FREE SPINS";
+                voucher.innerText = "VIPCSJ";
+            } else {
+                title.innerText = "50,000 CREDITS";
+                voucher.innerText = "VIPCRJ";
+            }
+        }
+        resultModal.classList.remove('hidden');
+    }
+
+    function redirectToRico() {
+        window.location.href = "https://rico.bet"; 
+    }
+</script>
+</body>
+</html>
