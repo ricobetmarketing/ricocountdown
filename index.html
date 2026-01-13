@@ -2,274 +2,292 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rico.bet VIP Day | Simple Mission, Big Rewards</title>
-    <link href="https://fonts.googleapis.com/css2?family=Goldman:wght@400;700&family=Montserrat:wght@300;600;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rico.bet VIP Surprise Drop</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         :root {
-            --gold: #d4af37;
-            --dark-bg: #0a0a0c;
-            --card-bg: rgba(20, 20, 25, 0.95);
-            --neon-blue: #00d4ff;
+            --rico-gold: #d4af37;
+            --rico-dark: #0f0f0f;
+            --rico-card: #1c1c1c;
         }
 
-        body, html {
+        body {
             margin: 0;
             padding: 0;
-            background-color: var(--dark-bg);
+            background-color: var(--rico-dark);
             color: white;
-            font-family: 'Montserrat', sans-serif;
-            overflow-x: hidden;
-            height: 100%;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            touch-action: manipulation;
         }
 
-        /* Background Visuals */
-        .bg-overlay {
+        /* --- UI Elements --- */
+        #game-header {
             position: fixed;
             top: 0;
-            left: 0;
             width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0c 100%);
-            z-index: -1;
-        }
-
-        /* Entrance Animation Trigger */
-        .container {
+            padding: 15px 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            perspective: 1000px;
+            justify-content: space-around;
+            z-index: 10;
         }
 
-        /* The Menu Card - Opening from Center Effect */
-        #vipMenu {
-            width: 90%;
-            max-width: 500px;
-            background: var(--card-bg);
-            border: 2px solid var(--gold);
-            border-radius: 15px;
-            padding: 40px;
-            text-align: center;
-            box-shadow: 0 0 50px rgba(212, 175, 55, 0.2);
-            transform: scale(0); /* Initial State */
-            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .score-box {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--rico-gold);
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 100px;
+        }
+
+        .score-box img { width: 30px; height: 30px; }
+        .score-count { font-weight: bold; font-size: 20px; color: var(--rico-gold); }
+
+        /* --- Game Area --- */
+        #game-canvas {
+            width: 100vw;
+            height: 100vh;
             position: relative;
+            background: radial-gradient(circle, #2c2c2c 0%, #0f0f0f 100%);
         }
 
-        #vipMenu.open {
-            transform: scale(1);
-        }
-
-        .logo {
-            font-family: 'Goldman', cursive;
-            font-size: 2.5rem;
-            color: var(--gold);
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            margin-bottom: 5px;
-            text-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
-        }
-
-        .slogan {
-            font-size: 0.9rem;
-            color: #aaa;
-            margin-bottom: 30px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        /* Menu Items */
-        .menu-section {
-            margin: 20px 0;
-            border-top: 1px solid rgba(212, 175, 55, 0.3);
-            padding-top: 20px;
-        }
-
-        .menu-item {
-            background: rgba(255, 255, 255, 0.05);
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 10px;
+        .drop-item {
+            position: absolute;
+            width: 70px;
+            height: 70px;
             cursor: pointer;
-            transition: 0.3s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid transparent;
+            filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
+            animation: rotate 3s linear infinite;
+            z-index: 5;
         }
 
-        .menu-item:hover {
-            background: rgba(212, 175, 55, 0.1);
-            border-color: var(--gold);
-            transform: translateX(5px);
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* --- Click Effect --- */
+        .pop-effect {
+            position: absolute;
+            border: 2px solid var(--rico-gold);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: pop 0.4s ease-out forwards;
         }
 
-        .item-info { text-align: left; }
-        .item-title { font-weight: 800; color: var(--gold); display: block; }
-        .item-desc { font-size: 0.8rem; color: #ccc; }
-
-        /* Pop-up Voucher Area */
-        #voucherDisplay {
-            display: none;
-            margin-top: 20px;
-            padding: 20px;
-            background: #111;
-            border: 1px dashed var(--gold);
-            animation: fadeIn 0.5s;
+        @keyframes pop {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
         }
 
-        .code-box {
-            font-family: 'Goldman', cursive;
-            font-size: 1.5rem;
-            color: var(--neon-blue);
-            margin: 10px 0;
-            letter-spacing: 2px;
-        }
-
-        /* Mystery Box Section */
-        .mystery-container {
-            margin-top: 50px;
+        /* --- Modals --- */
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%;
+            max-width: 400px;
+            background: var(--rico-card);
+            border: 2px solid var(--rico-gold);
+            border-radius: 20px;
+            padding: 30px;
             text-align: center;
-            opacity: 0.5;
-            transition: 1s;
+            z-index: 100;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
         }
 
-        .mystery-container.unlocked { opacity: 1; transform: scale(1.1); }
+        h1 { color: var(--rico-gold); margin-top: 0; text-transform: uppercase; letter-spacing: 2px; }
+        p { color: #ccc; line-height: 1.5; }
 
-        .box-icon {
-            font-size: 60px;
-            cursor: pointer;
-            filter: drop-shadow(0 0 10px var(--gold));
-            animation: float 3s ease-in-out infinite;
-        }
-
-        /* Buttons */
-        .btn-open {
-            padding: 15px 40px;
-            background: var(--gold);
+        .btn {
+            background: linear-gradient(135deg, #d4af37 0%, #f9e29c 50%, #d4af37 100%);
             color: black;
-            font-weight: 800;
             border: none;
+            padding: 15px 40px;
+            font-weight: bold;
+            font-size: 18px;
             border-radius: 50px;
             cursor: pointer;
-            font-size: 1.2rem;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+            text-transform: uppercase;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        /* Animations */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
+        .voucher-display {
+            background: #000;
+            border: 2px dashed var(--rico-gold);
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            letter-spacing: 3px;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        .hidden { display: none !important; }
 
-        .hidden { display: none; }
+        .footer-note { font-size: 10px; color: #666; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-<div class="bg-overlay"></div>
-
-<div class="container">
-    
-    <button class="btn-open" id="openBtn" onclick="openMenu()">OPEN VIP MENU</button>
-
-    <div id="vipMenu">
-        <div class="logo">Rico.bet</div>
-        <div class="slogan">Simple Mission, Big Rewards</div>
-        
-        <p style="font-weight: 300;">Welcome, VIP Player. Choose your privilege for today's mission.</p>
-
-        <div class="menu-section">
-            <div class="menu-item" onclick="claimReward('FOOD')">
-                <div class="item-info">
-                    <span class="item-title">🍱 RESTAURANT VOUCHER</span>
-                    <span class="item-desc">UberEats / iFood Credit</span>
-                </div>
-                <span>SELECT</span>
-            </div>
-
-            <div class="menu-item" onclick="claimReward('BONUS')">
-                <div class="item-info">
-                    <span class="item-title">💰 RELOAD BOOSTER</span>
-                    <span class="item-desc">100% Match Bonus</span>
-                </div>
-                <span>SELECT</span>
-            </div>
-
-            <div class="menu-item" onclick="claimReward('SPINS')">
-                <div class="item-info">
-                    <span class="item-title">🎰 LUCKY SPINS</span>
-                    <span class="item-desc">50 Mega Spins (No Wager)</span>
-                </div>
-                <span>SELECT</span>
-            </div>
+    <div id="game-header" class="hidden">
+        <div class="score-box">
+            <img src="https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png">
+            <span id="spin-count" class="score-count">0/5</span>
         </div>
-
-        <div id="voucherDisplay">
-            <p id="claimText">UNLOCKED CODE:</p>
-            <div class="code-box" id="codeText">XXXX-XXXX-XXXX</div>
-            <p style="font-size: 0.7rem;">Mission Status: <span style="color: #0f0;">ACTIVE</span>. Redeem via Live Chat.</p>
+        <div class="score-box">
+            <img src="https://ricobr.ft-crm.com/media-api/serve/75eb5a40-f5c7-417d-9bdc-10750938df03_Bonus.png">
+            <span id="credit-count" class="score-count">0/5</span>
         </div>
     </div>
 
-    <div class="mystery-container" id="mysteryBoxArea">
-        <p id="boxHint">Complete a mission to unlock Mystery Box</p>
-        <div class="box-icon" onclick="openMysteryBox()">🎁</div>
+    <div id="start-modal" class="modal">
+        <h1>VIP RAIN</h1>
+        <p>Catch <b>5 matching icons</b> to unlock your Surprise Drop reward!</p>
+        <button class="btn" onclick="startGame()">Start Drop</button>
+        <div class="footer-note">*Terms and conditions apply. Missions start in Rico.bet</div>
     </div>
 
-</div>
+    <div id="result-modal" class="modal hidden">
+        <h1 id="winner-title">CONGRATS!</h1>
+        <p id="winner-text">You've unlocked the VIP reward. Copy your code to start your mission:</p>
+        <div id="voucher-code" class="voucher-display">----</div>
+        <button class="btn" onclick="redirectToRico()">Redeem in Rico.bet</button>
+    </div>
+
+    <div id="game-canvas"></div>
 
 <script>
-    function openMenu() {
-        document.getElementById('openBtn').classList.add('hidden');
-        const menu = document.getElementById('vipMenu');
-        menu.classList.add('open');
+    const spinImg = "https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png";
+    const creditImg = "https://ricobr.ft-crm.com/media-api/serve/75eb5a40-f5c7-417d-9bdc-10750938df03_Bonus.png";
+    
+    let scores = { spin: 0, credit: 0 };
+    let gameActive = false;
+    const canvas = document.getElementById('game-canvas');
+
+    function startGame() {
+        document.getElementById('start-modal').classList.add('hidden');
+        document.getElementById('game-header').classList.remove('hidden');
+        gameActive = true;
+        
+        // Spawn loop
+        const spawnInterval = setInterval(() => {
+            if (!gameActive) {
+                clearInterval(spawnInterval);
+                return;
+            }
+            createItem();
+        }, 600);
     }
 
-    function claimReward(type) {
-        const display = document.getElementById('voucherDisplay');
-        const codeText = document.getElementById('codeText');
-        const claimText = document.getElementById('claimText');
+    function createItem() {
+        const item = document.createElement('img');
+        const isSpin = Math.random() > 0.5;
         
-        display.style.display = 'block';
+        item.src = isSpin ? spinImg : creditImg;
+        item.className = 'drop-item';
+        item.dataset.type = isSpin ? 'spin' : 'credit';
         
-        // Random Code Generator for effect
-        let code = "";
-        if(type === 'FOOD') {
-            code = "RICO-FOOD-2026";
-            claimText.innerText = "YOUR DINNER VOUCHER:";
-        } else if(type === 'BONUS') {
-            code = "BOOST-VIP-100";
-            claimText.innerText = "YOUR BONUS CODE:";
-        } else {
-            code = "GOLDEN-SPINS-50";
-            claimText.innerText = "YOUR SPINS CODE:";
-        }
+        // Random horizontal position
+        item.style.left = Math.random() * (window.innerWidth - 80) + 'px';
+        item.style.top = '-100px';
         
-        codeText.innerText = code;
+        canvas.appendChild(item);
 
-        // Unlock Mystery Box
-        document.getElementById('mysteryBoxArea').classList.add('unlocked');
-        document.getElementById('boxHint').innerText = "MYSTERY BOX UNLOCKED! CLICK TO OPEN";
-        document.getElementById('boxHint').style.color = "#d4af37";
+        // Animation
+        let pos = -100;
+        let speed = 3 + Math.random() * 4;
+        
+        const fall = setInterval(() => {
+            if (!gameActive) {
+                clearInterval(fall);
+                item.remove();
+                return;
+            }
+            
+            pos += speed;
+            item.style.top = pos + 'px';
+            
+            if (pos > window.innerHeight) {
+                clearInterval(fall);
+                item.remove();
+            }
+        }, 20);
+
+        item.onclick = function() {
+            handleCatch(item, fall);
+        };
+        
+        // Touch support
+        item.ontouchstart = function(e) {
+            e.preventDefault();
+            handleCatch(item, fall);
+        };
     }
 
-    function openMysteryBox() {
-        if(document.getElementById('mysteryBoxArea').classList.contains('unlocked')) {
-            alert("CONGRATULATIONS! You found an extra R$50 / MXN 250 in your Mystery Box! Contact your VIP Manager to credit it.");
-        } else {
-            alert("You must select a Menu Item first!");
+    function handleCatch(item, interval) {
+        const type = item.dataset.type;
+        scores[type]++;
+        
+        // Update UI
+        document.getElementById(type + '-count').innerText = scores[type] + '/5';
+        
+        // Visual Pop
+        const rect = item.getBoundingClientRect();
+        createPopEffect(rect.left + 35, rect.top + 35);
+        
+        clearInterval(interval);
+        item.remove();
+
+        if (scores[type] >= 5) {
+            endGame(type);
         }
+    }
+
+    function createPopEffect(x, y) {
+        const pop = document.createElement('div');
+        pop.className = 'pop-effect';
+        pop.style.left = (x - 25) + 'px';
+        pop.style.top = (y - 25) + 'px';
+        pop.style.width = '50px';
+        pop.style.height = '50px';
+        canvas.appendChild(pop);
+        setTimeout(() => pop.remove(), 400);
+    }
+
+    function endGame(winner) {
+        gameActive = false;
+        confetti({
+            particleCount: 200,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#d4af37', '#ffffff', '#f9e29c']
+        });
+
+        const resultModal = document.getElementById('result-modal');
+        const voucher = document.getElementById('voucher-code');
+        const title = document.getElementById('winner-title');
+
+        if (winner === 'spin') {
+            title.innerText = "50,000 FREE SPINS";
+            voucher.innerText = "RICO-SPINS-50K";
+        } else {
+            title.innerText = "50,000 CREDITS";
+            voucher.innerText = "RICO-BONUS-50K";
+        }
+
+        resultModal.classList.remove('hidden');
+    }
+
+    function redirectToRico() {
+        // Change this to your actual Rico.bet deposit/login URL
+        window.location.href = "https://rico.bet"; 
     }
 </script>
-
 </body>
 </html>
