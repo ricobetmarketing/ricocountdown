@@ -2,292 +2,234 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Rico.bet VIP Surprise Drop</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP DAY: Mystery of the Lost Scroll</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
     <style>
         :root {
-            --rico-gold: #d4af37;
-            --rico-dark: #0f0f0f;
-            --rico-card: #1c1c1c;
+            --paper: #f2e3c9;
+            --ink: #3d2b1f;
+            --accent: #8b0000;
         }
 
         body {
+            background-color: #1a120b;
+            color: var(--ink);
+            font-family: 'Special Elite', typewriter;
             margin: 0;
-            padding: 0;
-            background-color: var(--rico-dark);
-            color: white;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden;
-            height: 100vh;
-            touch-action: manipulation;
-        }
-
-        /* --- UI Elements --- */
-        #game-header {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            padding: 15px 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
             display: flex;
-            justify-content: space-around;
-            z-index: 10;
-        }
-
-        .score-box {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--rico-gold);
-            padding: 10px 20px;
-            border-radius: 50px;
-            display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 10px;
-            min-width: 100px;
+            padding: 40px 20px;
         }
 
-        .score-box img { width: 30px; height: 30px; }
-        .score-count { font-weight: bold; font-size: 20px; color: var(--rico-gold); }
-
-        /* --- Game Area --- */
-        #game-canvas {
-            width: 100vw;
-            height: 100vh;
+        /* Parchment Effect */
+        .map-container {
+            background-color: var(--paper);
+            max-width: 900px;
+            width: 100%;
+            padding: 50px;
+            border-radius: 5px;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.2), 0 10px 30px rgba(0,0,0,0.5);
             position: relative;
-            background: radial-gradient(circle, #2c2c2c 0%, #0f0f0f 100%);
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+            border: 20px solid transparent;
+            border-image: url('https://img.freepik.com/free-vector/vintage-paper-texture-background_1048-11534.jpg') 30 round;
         }
 
-        .drop-item {
-            position: absolute;
-            width: 70px;
-            height: 70px;
-            cursor: pointer;
-            filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
-            animation: rotate 3s linear infinite;
-            z-index: 5;
-        }
-
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        /* --- Click Effect --- */
-        .pop-effect {
-            position: absolute;
-            border: 2px solid var(--rico-gold);
-            border-radius: 50%;
-            pointer-events: none;
-            animation: pop 0.4s ease-out forwards;
-        }
-
-        @keyframes pop {
-            0% { transform: scale(0.5); opacity: 1; }
-            100% { transform: scale(2); opacity: 0; }
-        }
-
-        /* --- Modals --- */
-        .modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 85%;
-            max-width: 400px;
-            background: var(--rico-card);
-            border: 2px solid var(--rico-gold);
-            border-radius: 20px;
-            padding: 30px;
+        h1 {
+            font-family: 'Cinzel', serif;
             text-align: center;
-            z-index: 100;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            font-size: 2.5rem;
+            border-bottom: 2px solid var(--ink);
+            padding-bottom: 10px;
         }
 
-        h1 { color: var(--rico-gold); margin-top: 0; text-transform: uppercase; letter-spacing: 2px; }
-        p { color: #ccc; line-height: 1.5; }
-
-        .btn {
-            background: linear-gradient(135deg, #d4af37 0%, #f9e29c 50%, #d4af37 100%);
-            color: black;
-            border: none;
-            padding: 15px 40px;
-            font-weight: bold;
-            font-size: 18px;
-            border-radius: 50px;
-            cursor: pointer;
-            text-transform: uppercase;
-            margin-top: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        .briefing {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin: 30px 0;
+            border-left: 3px double var(--ink);
+            padding-left: 20px;
         }
 
-        .voucher-display {
-            background: #000;
-            border: 2px dashed var(--rico-gold);
-            padding: 15px;
+        /* The Animated Treasure Marker */
+        .map-area {
+            height: 300px;
+            border: 1px dashed var(--ink);
             margin: 20px 0;
-            font-size: 24px;
-            font-weight: bold;
-            color: white;
-            letter-spacing: 3px;
+            position: relative;
+            background: rgba(0,0,0,0.03);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .hidden { display: none !important; }
+        .x-mark {
+            font-family: 'Cinzel', serif;
+            font-size: 80px;
+            color: var(--accent);
+            cursor: help;
+            animation: pulse 2s infinite;
+            user-select: none;
+        }
 
-        .footer-note { font-size: 10px; color: #666; margin-top: 15px; }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; text-shadow: 0 0 20px red; }
+            100% { transform: scale(1); opacity: 0.7; }
+        }
+
+        /* Clues Section */
+        .clues-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .clue-card {
+            border: 1px dotted var(--ink);
+            padding: 15px;
+            font-size: 0.9rem;
+        }
+
+        /* Eye-Strain Clues */
+        .hidden-text {
+            color: #f1dfc1; /* Almost matching paper color */
+            font-size: 10px;
+            transition: color 0.5s;
+        }
+        .hidden-text:hover { color: rgba(0,0,0,0.2); }
+
+        .tiny-text {
+            font-size: 4px;
+            color: var(--ink);
+            opacity: 0.2;
+        }
+
+        /* Input Styling */
+        .unlock-zone {
+            margin-top: 50px;
+            text-align: center;
+            background: rgba(0,0,0,0.05);
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        input {
+            padding: 15px;
+            width: 250px;
+            border: 1px solid var(--ink);
+            background: transparent;
+            font-family: inherit;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+        }
+
+        button {
+            padding: 15px 30px;
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-weight: bold;
+        }
+
+        /* Success Overlay */
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(26, 18, 11, 0.95);
+            z-index: 100;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: gold;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
-    <div id="game-header" class="hidden">
-        <div class="score-box">
-            <img src="https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png">
-            <span id="spin-count" class="score-count">0/5</span>
+<div class="map-container">
+    <h1>TREASURE HUNT: VIP EDITION</h1>
+    
+    <div class="briefing">
+        <strong>TO ALL OPERATIVES:</strong><br>
+        Five ancient vouchers have been scattered across our GitHub repository. <br>
+        Each code grants a different reward. Choose wisely, for the system only allows 
+        <strong>one decryption attempt</strong> per hunter.
+    </div>
+
+    <div class="map-area">
+        <div class="x-mark">X</div>
+        <div style="position: absolute; top: 10px; right: 10px;" class="hidden-text">CODE: GOLDEN_EYE_22</div>
+    </div>
+
+    <div class="clues-grid">
+        <div class="clue-card">
+            <strong>LOG 1: THE INVISIBLE INK</strong>
+            <p>Check the bottom of the `README.md`. Use the "Select All" spell to reveal what is hidden in the white space.</p>
         </div>
-        <div class="score-box">
-            <img src="https://ricobr.ft-crm.com/media-api/serve/75eb5a40-f5c7-417d-9bdc-10750938df03_Bonus.png">
-            <span id="credit-count" class="score-count">0/5</span>
+        <div class="clue-card">
+            <strong>LOG 2: THE CONFIG LEAK</strong>
+            <p>A developer left a secret string in `config.json`. It is buried under 100 lines of dummy data.</p>
+        </div>
+        <div class="clue-card">
+            <strong>LOG 3: GHOST COMMITS</strong>
+            <p>Go back in time. Look at the "Commit History". A voucher was deleted 2 days ago.</p>
+        </div>
+        <div class="clue-card">
+            <strong>LOG 4: THE MAP'S EDGE</strong>
+            <p>Look at the very edges of this page. Some text is too small for the human eye.</p>
+            <span class="tiny-text">VO_TINY_9901</span>
         </div>
     </div>
 
-    <div id="start-modal" class="modal">
-        <h1>VIP RAIN</h1>
-        <p>Catch <b>5 matching icons</b> to unlock your Surprise Drop reward!</p>
-        <button class="btn" onclick="startGame()">Start Drop</button>
-        <div class="footer-note">*Terms and conditions apply. Missions start in Rico.bet</div>
+    <div class="unlock-zone">
+        <h3>FOUND A VOUCHER?</h3>
+        <p>Enter the 10-character code below to claim your drop.</p>
+        <input type="text" id="voucherInput" placeholder="SECRET_CODE">
+        <button onclick="claim()">DECRYPT VOUCHER</button>
     </div>
 
-    <div id="result-modal" class="modal hidden">
-        <h1 id="winner-title">CONGRATS!</h1>
-        <p id="winner-text">You've unlocked the VIP reward. Copy your code to start your mission:</p>
-        <div id="voucher-code" class="voucher-display">----</div>
-        <button class="btn" onclick="redirectToRico()">Redeem in Rico.bet</button>
-    </div>
+    <p style="text-align: center; opacity: 0.05; font-size: 8px;">VOUCHER_HIDDEN_VAULT</p>
+</div>
 
-    <div id="game-canvas"></div>
+<div id="overlay">
+    <h1 style="color: gold; border: none;">💰 TREASURE UNLOCKED 💰</h1>
+    <p id="rewardText" style="font-size: 1.5rem;"></p>
+    <div id="codeDisplay" style="border: 2px dashed gold; padding: 20px; margin: 20px; font-size: 2rem;"></div>
+    <button onclick="location.reload()" style="background: gold; color: black;">CLAIM REWARD</button>
+</div>
 
 <script>
-    const spinImg = "https://ricobr.ft-crm.com/media-api/serve/af665c42-6b20-4ab0-b3e1-69d75744b739_Free_Spin.png";
-    const creditImg = "https://ricobr.ft-crm.com/media-api/serve/75eb5a40-f5c7-417d-9bdc-10750938df03_Bonus.png";
-    
-    let scores = { spin: 0, credit: 0 };
-    let gameActive = false;
-    const canvas = document.getElementById('game-canvas');
+    const REWARDS = {
+        "GOLDEN_EYE_22": "50% OFF - THE ULTIMATE PRIZE",
+        "GHOST_VAULT_7": "FREE SHIPPING + RM20 VOUCHER",
+        "VO_TINY_9901": "BUY 1 FREE 1 SITEWIDE",
+        "COMMIT_RECOVER": "RM100 CASH VOUCHER",
+        "HIDDEN_VAULT": "EXCLUSIVE MYSTERY GIFT"
+    };
 
-    function startGame() {
-        document.getElementById('start-modal').classList.add('hidden');
-        document.getElementById('game-header').classList.remove('hidden');
-        gameActive = true;
-        
-        // Spawn loop
-        const spawnInterval = setInterval(() => {
-            if (!gameActive) {
-                clearInterval(spawnInterval);
-                return;
-            }
-            createItem();
-        }, 600);
-    }
+    function claim() {
+        const input = document.getElementById('voucherInput').value.trim().toUpperCase();
+        const overlay = document.getElementById('overlay');
+        const rewardText = document.getElementById('rewardText');
+        const codeDisplay = document.getElementById('codeDisplay');
 
-    function createItem() {
-        const item = document.createElement('img');
-        const isSpin = Math.random() > 0.5;
-        
-        item.src = isSpin ? spinImg : creditImg;
-        item.className = 'drop-item';
-        item.dataset.type = isSpin ? 'spin' : 'credit';
-        
-        // Random horizontal position
-        item.style.left = Math.random() * (window.innerWidth - 80) + 'px';
-        item.style.top = '-100px';
-        
-        canvas.appendChild(item);
-
-        // Animation
-        let pos = -100;
-        let speed = 3 + Math.random() * 4;
-        
-        const fall = setInterval(() => {
-            if (!gameActive) {
-                clearInterval(fall);
-                item.remove();
-                return;
-            }
-            
-            pos += speed;
-            item.style.top = pos + 'px';
-            
-            if (pos > window.innerHeight) {
-                clearInterval(fall);
-                item.remove();
-            }
-        }, 20);
-
-        item.onclick = function() {
-            handleCatch(item, fall);
-        };
-        
-        // Touch support
-        item.ontouchstart = function(e) {
-            e.preventDefault();
-            handleCatch(item, fall);
-        };
-    }
-
-    function handleCatch(item, interval) {
-        const type = item.dataset.type;
-        scores[type]++;
-        
-        // Update UI
-        document.getElementById(type + '-count').innerText = scores[type] + '/5';
-        
-        // Visual Pop
-        const rect = item.getBoundingClientRect();
-        createPopEffect(rect.left + 35, rect.top + 35);
-        
-        clearInterval(interval);
-        item.remove();
-
-        if (scores[type] >= 5) {
-            endGame(type);
-        }
-    }
-
-    function createPopEffect(x, y) {
-        const pop = document.createElement('div');
-        pop.className = 'pop-effect';
-        pop.style.left = (x - 25) + 'px';
-        pop.style.top = (y - 25) + 'px';
-        pop.style.width = '50px';
-        pop.style.height = '50px';
-        canvas.appendChild(pop);
-        setTimeout(() => pop.remove(), 400);
-    }
-
-    function endGame(winner) {
-        gameActive = false;
-        confetti({
-            particleCount: 200,
-            spread: 70,
-            origin: { y: 0.6 },
-            colors: ['#d4af37', '#ffffff', '#f9e29c']
-        });
-
-        const resultModal = document.getElementById('result-modal');
-        const voucher = document.getElementById('voucher-code');
-        const title = document.getElementById('winner-title');
-
-        if (winner === 'spin') {
-            title.innerText = "50,000 FREE SPINS";
-            voucher.innerText = "VIPCSJ";
+        if (REWARDS[input]) {
+            rewardText.innerText = "You found: " + REWARDS[input];
+            codeDisplay.innerText = input;
+            overlay.style.display = 'flex';
         } else {
-            title.innerText = "50,000 CREDITS";
-            voucher.innerText = "VIPCRJ";
+            alert("ACCESS DENIED: This code is invalid or has expired.");
         }
-
-        resultModal.classList.remove('hidden');
-    }
-
-    function redirectToRico() {
-        // Change this to your actual Rico.bet deposit/login URL
-        window.location.href = "https://rico.bet"; 
     }
 </script>
+
 </body>
 </html>
