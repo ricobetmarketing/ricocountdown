@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rico.bet VIP Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #ffd700; --dark: #0b0604; --accent: #ff4d4d; --glass: rgba(255,255,255,0.1); }
+        body { background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; text-align: center; }
+        
+        .game-container { max-width: 500px; margin: 20px auto; padding: 25px; border: 2px solid var(--gold); border-radius: 30px; background: rgba(20,20,20,0.9); box-shadow: 0 0 50px rgba(255,215,0,0.2); }
+        .mission-panel { display: none; min-height: 480px; transition: 0.5s; }
+        .active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+        h1 { font-family: 'Cinzel', serif; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; font-size: 1.5rem; margin-bottom: 5px; }
+        .instruction { font-size: 0.9rem; color: #ccc; margin-bottom: 30px; line-height: 1.4; }
+
+        /* --- MISSION 1: THE MASCOT HUNT --- */
+        .hunt-box { position: relative; width: 100%; height: 350px; background: #1a1a1a; border-radius: 20px; border: 1px solid var(--gold); overflow: hidden; background-image: url('https://www.transparenttextures.com/patterns/pinstriped-suit.png'); }
+        .mascot { position: absolute; width: 50px; opacity: 0.15; cursor: pointer; transition: 0.3s; filter: grayscale(100%); }
+        .mascot:hover { opacity: 1; filter: none; transform: scale(1.2); }
+
+        /* --- MISSION 2: VIP SHAKER (The Mixer) --- */
+        .shaker-container { position: relative; width: 200px; height: 250px; cursor: pointer; }
+        .shaker { width: 120px; transition: transform 0.1s; filter: drop-shadow(0 0 15px var(--gold)); }
+        .shake-anim { animation: shakeObject 0.2s infinite; }
+        @keyframes shakeObject {
+            0% { transform: translate(2px, 1px) rotate(0deg); }
+            50% { transform: translate(-2px, -2px) rotate(-5deg); }
+            100% { transform: translate(2px, 1px) rotate(5deg); }
+        }
+        .progress-wrap { width: 100%; height: 10px; background: #333; border-radius: 10px; margin-top: 30px; border: 1px solid var(--gold); }
+        .progress-bar { height: 100%; background: var(--gold); width: 0%; border-radius: 10px; transition: width 0.2s; box-shadow: 0 0 10px var(--gold); }
+
+        /* --- MISSION 3: THE LASER VAULT --- */
+        .laser-box { width: 100%; height: 200px; background: #000; position: relative; border-radius: 15px; border: 2px solid #333; overflow: hidden; }
+        .target-zone { position: absolute; left: 50%; transform: translateX(-50%); width: 45px; height: 100%; background: rgba(0,255,0,0.2); border-left: 2px solid #0f0; border-right: 2px solid #0f0; }
+        .laser-beam { position: absolute; left: 0; width: 4px; height: 100%; background: #ff0000; box-shadow: 0 0 15px #ff0000; animation: moveLaser 1.5s infinite alternate linear; }
+        @keyframes moveLaser { from { left: 0%; } to { left: 98%; } }
+
+        /* COMMON COMPONENTS */
+        .btn { background: linear-gradient(180deg, #ffd700, #b8860b); color: black; border: none; padding: 15px 35px; border-radius: 50px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 25px; font-family: 'Cinzel'; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
+        .btn:active { transform: scale(0.95); }
+        
+        #success { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.97); z-index:1000; align-items:center; justify-content:center; flex-direction:column; }
+        .win-card { border: 2px solid gold; padding: 50px; border-radius: 30px; background: #111; box-shadow: 0 0 100px rgba(255,215,0,0.3); }
+        .promo { font-family: 'Orbitron', sans-serif; font-size: 2.2rem; color: gold; margin: 25px 0; letter-spacing: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div id="m1" class="mission-panel active">
+        <h1>Mission 1: Invisible Rico</h1>
+        <p class="instruction">Welcome back! Rico is hiding in the VIP Lounge. <br>Find and tap him to reveal your first reward.</p>
+        <div class="hunt-box">
+            <img src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png" 
+                 class="mascot" style="top: 220px; left: 15%; transform: rotate(-10deg);" onclick="win('RICO-FOUND-VIP')">
+            <div style="position:absolute; bottom:20px; right:20px; font-size: 4rem; opacity:0.1">🥂</div>
+            <div style="position:absolute; top:20px; left:20px; font-size: 3rem; opacity:0.1">♠️</div>
+        </div>
+    </div>
+
+    <div id="m2" class="mission-panel">
+        <h1>Mission 2: The VIP Shaker</h1>
+        <p class="instruction">Target Turnover Reached! <br>Click the shaker rapidly to mix your cocktail and reveal the prize.</p>
+        <div class="shaker-container" onclick="handleShake()">
+            <img id="shakerImg" src="https://cdn-icons-png.flaticon.com/512/7637/7637389.png" class="shaker">
+        </div>
+        <div class="progress-wrap">
+            <div id="shakeBar" class="progress-bar"></div>
+        </div>
+        <p style="margin-top:10px; font-size: 10px; color: var(--gold)">CLICK REPEATEDLY TO FILL</p>
+    </div>
+
+    <div id="m3" class="mission-panel">
+        <h1>Mission 3: Laser Breach</h1>
+        <p class="instruction">Final Security Layer: <br>Press STOP exactly when the laser enters the Green Zone.</p>
+        <div class="laser-box">
+            <div class="target-zone"></div>
+            <div id="laser" class="laser-beam"></div>
+        </div>
+        <button class="btn" onclick="stopLaser()">STOP SYSTEM</button>
+    </div>
+
+    <div style="margin-top:30px; opacity:0.2; font-size: 10px;">
+        <span onclick="showM('m1')">MISSION 1</span> | 
+        <span onclick="showM('m2')">MISSION 2</span> | 
+        <span onclick="showM('m3')">MISSION 3</span>
+    </div>
+</div>
+
+<div id="success">
+    <div class="win-card">
+        <h2 style="font-family: 'Cinzel';">ACCESS GRANTED</h2>
+        <p>Voucher code for VIP Day:</p>
+        <div class="promo" id="codeText">RICO-GOLD-2026</div>
+        <button class="btn" onclick="window.location.href='https://rico.bet'">CLAIM IN CASHIER</button>
+    </div>
+</div>
+
+<script>
+    // Logic to switch screens based on URL: index.html?mission=2
+    function showM(id) {
+        document.querySelectorAll('.mission-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function win(code) {
+        document.getElementById('codeText').innerText = code;
+        document.getElementById('success').style.display = 'flex';
+    }
+
+    // MISSION 2: SHAKER LOGIC
+    let shakeProgress = 0;
+    function handleShake() {
+        const shaker = document.getElementById('shakerImg');
+        const bar = document.getElementById('shakeBar');
+        
+        shakeProgress += 8;
+        bar.style.width = shakeProgress + "%";
+        
+        // Visual Feedback
+        shaker.classList.add('shake-anim');
+        setTimeout(() => shaker.classList.remove('shake-anim'), 100);
+
+        if (shakeProgress >= 100) {
+            setTimeout(() => win('COCKTAIL-MIX-77'), 500);
+        }
+    }
+
+    // MISSION 3: LASER LOGIC
+    function stopLaser() {
+        const laser = document.getElementById('laser');
+        const rect = laser.getBoundingClientRect();
+        const parentRect = laser.parentElement.getBoundingClientRect();
+        const laserPos = rect.left - parentRect.left;
+        const targetStart = (parentRect.width / 2) - 22;
+        const targetEnd = (parentRect.width / 2) + 22;
+
+        if (laserPos >= targetStart && laserPos <= targetEnd) {
+            laser.style.animationPlayState = 'paused';
+            win('VAULT-BREACH-888');
+        } else {
+            alert("ALARM TRIGGERED! Your timing was off. Resetting laser...");
+        }
+    }
+
+    // Initialize based on URL
+    const urlM = new URLSearchParams(window.location.search).get('mission');
+    if(urlM) showM('m' + urlM);
+</script>
+
+</body>
+</html>
