@@ -216,29 +216,54 @@
     document.getElementById('m1-locked-badge').style.display = "block";
   }
 
-  async function refreshM1FromServer(){
-    try{
-      const data = await apiStatus();
-      if(!data.ok) return;
+async function refreshM1FromServer(){
+  // show quick placeholders (so user doesn't feel stuck)
+  document.getElementById("m1-limit").innerText = "...";
+  document.getElementById("m1-used").innerText = "...";
+  document.getElementById("m1-left").innerText = "...";
 
-      const limit = data.limit || 0;
-      const used  = data.used || 0;
-      const left  = data.left || 0;
+  // timeout so it won't hang forever
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 6000);
 
-      document.getElementById("m1-limit").innerText = limit;
-      document.getElementById("m1-used").innerText = used;
-      document.getElementById("m1-left").innerText = left;
+  try{
+    const url = `${API_URL}?action=status&mission=${encodeURIComponent(MISSION)}&_=${Date.now()}`;
+    const res = await fetch(url, { method: "GET", signal: controller.signal });
+    const data = await res.json();
 
-      const pct = limit ? Math.round((used / limit) * 100) : 0;
-      document.getElementById("m1-bar-fill").style.width = Math.min(100, pct) + "%";
-
-      if(left <= 0){
-        lockMission1UI();
-      }
-    }catch(e){
-      // ignore in UI
+    if(!data.ok){
+      // show fallback if backend returns error
+      document.getElementById("m1-limit").innerText = "—";
+      document.getElementById("m1-used").innerText = "—";
+      document.getElementById("m1-left").innerText = "—";
+      return;
     }
+
+    const limit = Number(data.limit || 0);
+    const used  = Number(data.used  || 0);
+    const left  = Number(data.left  || 0);
+
+    document.getElementById("m1-limit").innerText = limit;
+    document.getElementById("m1-used").innerText  = used;
+    document.getElementById("m1-left").innerText  = left;
+
+    const pct = limit ? Math.round((used / limit) * 100) : 0;
+    document.getElementById("m1-bar-fill").style.width = Math.min(100, pct) + "%";
+
+    if(left <= 0){
+      lockMission1UI();
+    }
+
+  } catch(e){
+    // network blocked / script not public / slow
+    document.getElementById("m1-limit").innerText = "—";
+    document.getElementById("m1-used").innerText = "—";
+    document.getElementById("m1-left").innerText = "—";
+  } finally{
+    clearTimeout(timer);
   }
+}
+
 
   async function winMission1Limited(){
     // Live claim against Google Sheet pool
@@ -399,7 +424,6 @@
 
   // Live status poll
   refreshM1FromServer();
-  setInterval(refreshM1FromServer, 5000);
 </script>
 </body>
 </html>
