@@ -81,8 +81,8 @@
 
 <div class="game-wrap">
   <div id="m1" class="mission active">
-    <h1>Mission 1: 热力搜寻</h1>
-    <p class="desc">在黑暗中找到 3 个隐藏的 Rico 吉祥物</p>
+    <h1>Mission 1: Thermal Hunt</h1>
+    <p class="desc">Find 3 hidden Rico mascots in the dark</p>
 
     <div id="scanner-box" onmousemove="handleScan(event)" ontouchmove="handleScan(event)">
       <div id="torch"></div>
@@ -91,7 +91,7 @@
       <img src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png" class="mascot-target" style="top: 180px; left: 300px; width: 50px;" onclick="findMascot(this)">
     </div>
 
-    <p id="m1-count" style="color:var(--gold); margin-top:15px;">已找到: 0/3</p>
+    <p id="m1-count" style="color:var(--gold); margin-top:15px;">Found: 0/3</p>
 
     <div class="m1-slots">
       <div class="top">
@@ -99,33 +99,33 @@
         <div>Used: <b id="m1-used">—</b></div>
       </div>
       <div class="m1-bar"><i id="m1-bar-fill"></i></div>
-      <div class="m1-locked-badge" id="m1-locked-badge">⚠️ Slot claimed finish… Mission 1 已满额 / SOLD OUT</div>
+      <div class="m1-locked-badge" id="m1-locked-badge">⚠️ Mission 1 is full / SOLD OUT</div>
     </div>
 
     <div class="small">Live update from Google Sheet (poll every 5s).</div>
   </div>
 
   <div id="m2" class="mission">
-    <h1>Mission 2: 逻辑电路</h1>
-    <p class="desc">点击旋转管道。必须将左上角蓝色入口连接到右下角出口。</p>
+    <h1>Mission 2: Logic Circuit</h1>
+    <p class="desc">Tap to rotate the pipes. Connect the blue inlet (top-left) to the exit (bottom-right).</p>
     <div style="position:relative;">
       <div class="entry" style="top:-15px; left:10px;">INLET ▼</div>
       <div class="pipe-grid" id="pipeGrid"></div>
       <div class="exit" style="bottom:-15px; right:10px;">EXIT ▲</div>
     </div>
-    <button class="btn" id="m2-btn" disabled onclick="win('CONNECT-PIPE-MASTER')">系统激活</button>
+    <button class="btn" id="m2-btn" disabled onclick="win('CONNECT-PIPE-MASTER')">Activate System</button>
   </div>
 
   <div id="m3" class="mission">
-    <h1>Mission 3: 金库密码</h1>
-    <p class="desc">旋转拨盘寻找 3 个正确位置。当中心数字变蓝时点击拨盘。</p>
+    <h1>Mission 3: Vault Code</h1>
+    <p class="desc">Rotate the dial to find 3 correct positions. Tap the dial when the center number turns blue.</p>
     <div class="indicator"></div>
     <div class="dial-container">
       <div id="dial" onmousedown="startRotate(event)" ontouchstart="startRotate(event)">
         <div class="dial-center" id="dialDisplay">0</div>
       </div>
     </div>
-    <p id="vault-status" style="margin-top:20px; color:var(--gold)">进度: 0 / 3</p>
+    <p id="vault-status" style="margin-top:20px; color:var(--gold)">Progress: 0 / 3</p>
   </div>
 
   <div style="margin-top:20px; opacity:0.15; font-size:10px;">
@@ -162,7 +162,7 @@
 
   // Keep original win() for Mission 2 & 3 (unchanged)
   function win(code) {
-    alert("任务完成！您的奖励代码: " + code);
+    alert("Mission completed! Your reward code: " + code);
     location.reload();
   }
 
@@ -272,7 +272,7 @@ async function refreshM1FromServer(){
     // Sold out
     if(!r.ok && r.soldOut){
       await refreshM1FromServer();
-      showModal("Slot claimed finish…", `Mission 1 SOLD OUT <div class="danger-tag">No vouchers left</div>`);
+      showModal("Slots Full", `Mission 1 SOLD OUT <div class="danger-tag">No vouchers left</div>`);
       lockMission1UI();
       return;
     }
@@ -286,8 +286,8 @@ async function refreshM1FromServer(){
     await refreshM1FromServer();
 
     showModal(
-      r.alreadyClaimed ? "Already Claimed" : "任务完成！Mission 1 Completed ✅",
-      `您的奖励代码 / Voucher Code:
+      r.alreadyClaimed ? "Already Claimed" : "Mission 1 Completed ✅",
+      `Your Voucher Code:
        <div class="code-box">${r.voucher}</div>
        <div class="small">Slots Left: <b style="color:var(--gold)">${r.left}</b> / ${r.limit}</div>`
     );
@@ -315,7 +315,7 @@ async function refreshM1FromServer(){
   function findMascot(el) {
     if(!el.classList.contains('found')) {
       el.classList.add('found'); m1Count++;
-      document.getElementById('m1-count').innerText = `已找到: ${m1Count}/3`;
+      document.getElementById('m1-count').innerText = `Found: ${m1Count}/3`;
       // ONLY change: when complete -> claim via Apps Script
       if(m1Count === 3) setTimeout(() => winMission1Limited(), 500);
     }
@@ -412,7 +412,7 @@ async function refreshM1FromServer(){
       window.removeEventListener('touchend', stop);
       if(Math.abs(Math.floor(currentRotation) - targetCodes[currentStep]) < 5) {
         currentStep++;
-        document.getElementById('vault-status').innerText = `进度: ${currentStep} / 3`;
+        document.getElementById('vault-status').innerText = `Progress: ${currentStep} / 3`;
         if(currentStep === 3) win('VAULT-BREACH-99');
       }
     };
