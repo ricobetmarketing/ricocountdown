@@ -6,84 +6,328 @@
   <title>Rico.bet VIP Expert Missions</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
-    :root { --gold:#ffd166; --dark:#0b0604; --neon:#22d3ee; --danger:#ef4444; --muted:#9ca3af; }
-    body { background: var(--dark); color: white; font-family: 'Orbitron', sans-serif; margin: 0; display: flex; justify-content: center; }
-
-    .game-wrap { max-width: 450px; width: 100%; margin: 20px auto; padding: 20px; border: 2px solid var(--gold); border-radius: 20px; background: #111; min-height: 600px; display: flex; flex-direction: column; }
-    .mission { display: none; flex-direction: column; align-items: center; flex: 1; }
-    .active { display: flex; animation: fadeIn 0.5s; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    h1 { font-family: 'Cinzel'; color: var(--gold); font-size: 1.3rem; text-shadow: 0 0 10px rgba(255,209,102,0.3); margin: 0 0 8px; }
-    .desc { font-size: 0.8rem; color: #888; margin-bottom: 14px; text-align: center; }
-
-    /* Drop panel */
-    .drop-panel{
-      width: 100%;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.04);
-      border-radius: 14px;
-      padding: 12px;
-      margin: 6px 0 14px;
+    :root{
+      --gold:#ffd166;
+      --dark:#070504;
+      --panel:#0f0b08;
+      --neon:#22d3ee;
+      --danger:#ef4444;
+      --muted:#9ca3af;
+      --glass: rgba(255,255,255,.06);
+      --stroke: rgba(255,255,255,.12);
     }
-    .drop-top{ display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap; }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      background:
+        radial-gradient(1200px 800px at 50% -10%, rgba(255,209,102,.08), transparent 60%),
+        radial-gradient(900px 700px at 20% 110%, rgba(34,211,238,.08), transparent 55%),
+        var(--dark);
+      color:#fff;
+      font-family:'Orbitron', system-ui, sans-serif;
+      padding: 18px 12px;
+    }
+
+    /* Main frame */
+    .game-wrap{
+      max-width: 460px;
+      width: 100%;
+      border-radius: 22px;
+      padding: 18px;
+      position: relative;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)),
+        var(--panel);
+      border: 1px solid rgba(255,209,102,.35);
+      box-shadow:
+        0 30px 120px rgba(0,0,0,.65),
+        0 0 0 1px rgba(255,209,102,.08) inset;
+      overflow:hidden;
+    }
+
+    /* Animated border glow */
+    .game-wrap::before{
+      content:"";
+      position:absolute; inset:-2px;
+      border-radius: 24px;
+      background: conic-gradient(from 180deg,
+        rgba(255,209,102,.0),
+        rgba(255,209,102,.25),
+        rgba(34,211,238,.22),
+        rgba(255,209,102,.0)
+      );
+      filter: blur(16px);
+      opacity:.55;
+      animation: spinGlow 8s linear infinite;
+      pointer-events:none;
+    }
+    @keyframes spinGlow { to { transform: rotate(360deg); } }
+
+    /* Subtle floating particles */
+    .particles{
+      position:absolute; inset:0;
+      pointer-events:none;
+      opacity:.25;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255,209,102,.25) 0 2px, transparent 3px),
+        radial-gradient(circle at 70% 20%, rgba(34,211,238,.22) 0 2px, transparent 3px),
+        radial-gradient(circle at 85% 60%, rgba(255,255,255,.12) 0 1px, transparent 2px),
+        radial-gradient(circle at 35% 75%, rgba(255,209,102,.16) 0 2px, transparent 3px);
+      animation: floatDust 6s ease-in-out infinite alternate;
+    }
+    @keyframes floatDust{
+      from{ transform: translateY(0px); }
+      to{ transform: translateY(-10px); }
+    }
+
+    h1{
+      font-family:'Cinzel';
+      color: var(--gold);
+      text-align:center;
+      font-size: 1.15rem;
+      margin: 6px 0 8px;
+      letter-spacing: .6px;
+      text-shadow: 0 0 16px rgba(255,209,102,.18);
+      position:relative;
+      z-index:1;
+    }
+
+    .desc{
+      font-size: 0.78rem;
+      color: #b3b3b3;
+      text-align:center;
+      margin: 0 0 12px;
+      position:relative;
+      z-index:1;
+      line-height:1.35;
+    }
+    .desc b{ color: var(--gold); }
+
+    /* Gate panel */
+    .drop-panel{
+      width:100%;
+      padding: 12px 12px 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(600px 220px at 50% -20%, rgba(255,209,102,.14), transparent 60%),
+        rgba(0,0,0,.28);
+      box-shadow: 0 16px 60px rgba(0,0,0,.45);
+      position:relative;
+      z-index:1;
+    }
+    .drop-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .drop-kv{
+      font-size:12px;
+      color:#ddd;
+    }
+    .drop-kv b{ color: var(--gold); }
+
     .badge{
-      display:inline-flex; align-items:center; gap:8px;
-      padding: 8px 10px; border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
       border: 1px solid rgba(255,255,255,.14);
       background: rgba(255,255,255,.06);
       font-size: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      user-select:none;
+      white-space:nowrap;
     }
-    .badge.live{ border-color: rgba(34,211,238,.35); background: rgba(34,211,238,.12); color: #c9fbff; }
-    .badge.closed{ border-color: rgba(255,255,255,.14); color: #ddd; }
-    .badge.full{ border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.12); color: #ffd1d1; }
+    .badge.live{
+      border-color: rgba(34,211,238,.35);
+      background: rgba(34,211,238,.12);
+      color: #d6fbff;
+    }
+    .badge.closed{
+      border-color: rgba(255,255,255,.14);
+      color: #e7e7e7;
+    }
+    .badge.full{
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.12);
+      color:#ffd1d1;
+    }
 
-    .drop-kv{ font-size: 12px; color: #cfcfcf; }
-    .drop-kv b{ color: var(--gold); }
     .countdown{
-      margin-top: 8px;
-      font-family: 'Cinzel';
-      letter-spacing: .6px;
+      margin-top:10px;
+      text-align:center;
+      font-family:'Cinzel';
       color: var(--gold);
+      letter-spacing:.8px;
       font-size: 14px;
-      text-align: center;
       padding: 10px 12px;
       border-radius: 12px;
       border: 1px dashed rgba(255,209,102,.45);
       background: rgba(255,255,255,.03);
     }
-    .tiny{ margin-top: 8px; font-size: 11px; color: var(--muted); text-align:center; }
+    .tiny{
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
+      text-align:center;
+    }
 
     /* Scanner */
-    #scanner-box { position: relative; width: 100%; height: 350px; background: #000; border-radius: 15px; overflow: hidden; cursor: none; border: 1px solid #333; }
-    #torch { position: absolute; width: 140px; height: 140px; background: radial-gradient(circle, rgba(255,209,102,0.25) 0%, transparent 70%); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 10; }
-    .mascot-target { position: absolute; opacity: 0; transition: opacity 0.3s; cursor: pointer; }
-    .mascot-target.found { opacity: 1 !important; filter: drop-shadow(0 0 10px var(--gold)); pointer-events: none; }
+    #scanner-box{
+      position: relative;
+      width: 100%;
+      height: 350px;
+      margin-top: 14px;
+      border-radius: 18px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(900px 400px at 50% -20%, rgba(34,211,238,.08), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.25)),
+        #040404;
+      box-shadow: 0 18px 70px rgba(0,0,0,.55);
+      z-index:1;
+    }
 
-    /* Lock overlay for scanner */
+    /* subtle scanline animation */
+    #scanner-box::after{
+      content:"";
+      position:absolute; left:0; right:0; top:-40%;
+      height: 40%;
+      background: linear-gradient(to bottom, transparent, rgba(34,211,238,.08), transparent);
+      animation: scanline 3.2s linear infinite;
+      pointer-events:none;
+      opacity:.45;
+    }
+    @keyframes scanline{
+      to { transform: translateY(420px); }
+    }
+
+    #torch{
+      position:absolute;
+      width: 150px;
+      height: 150px;
+      background: radial-gradient(circle, rgba(255,209,102,0.30) 0%, transparent 72%);
+      border-radius:50%;
+      transform: translate(-50%, -50%);
+      pointer-events:none;
+      z-index: 8;
+      opacity: 1;
+      transition: opacity .15s ease;
+      filter: drop-shadow(0 0 10px rgba(255,209,102,.15));
+    }
+    #torch.hidden{ opacity:0; }
+
+    .mascot-target{
+      position:absolute;
+      opacity: 0;
+      transition: opacity .25s ease;
+      cursor:pointer;
+      z-index: 6;
+      filter: drop-shadow(0 0 0 rgba(0,0,0,0));
+    }
+    .mascot-target.found{
+      opacity: 1 !important;
+      filter: drop-shadow(0 0 14px rgba(255,209,102,.55));
+      pointer-events:none;
+    }
+
+    /* HARD LOCK OVERLAY */
     .lock-overlay{
       position:absolute; inset:0;
-      display:none; align-items:center; justify-content:center;
-      background: radial-gradient(circle at 50% 35%, rgba(0,0,0,.35), rgba(0,0,0,.85));
-      z-index: 20;
-      text-align:center;
-      padding: 18px;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 16px;
+      z-index: 50;
+      background:
+        radial-gradient(800px 340px at 50% 20%, rgba(0,0,0,.20), rgba(0,0,0,.82)),
+        rgba(0,0,0,.55);
+      pointer-events: all; /* IMPORTANT: captures mouse/touch */
+      backdrop-filter: blur(2px);
     }
     .lock-overlay.show{ display:flex; }
+
     .lock-card{
       width: 100%;
+      border-radius: 18px;
       border: 1px solid rgba(255,255,255,.12);
-      border-radius: 16px;
-      background: rgba(0,0,0,.45);
-      padding: 14px;
-      box-shadow: 0 20px 70px rgba(0,0,0,.6);
+      background: rgba(0,0,0,.35);
+      padding: 16px 14px;
+      box-shadow:
+        0 24px 90px rgba(0,0,0,.65),
+        0 0 0 1px rgba(255,255,255,.06) inset;
+      position:relative;
+      overflow:hidden;
     }
-    .lock-title{ font-family:'Cinzel'; color: var(--gold); font-size: 16px; margin-bottom: 6px; }
-    .lock-msg{ font-size: 12px; color: #ddd; line-height: 1.35; }
-    .lock-msg .red{ color: #ffd1d1; }
+    .lock-card::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: radial-gradient(400px 140px at 50% 0%, rgba(255,209,102,.20), transparent 60%);
+      opacity:.9;
+      pointer-events:none;
+    }
+    .lock-title{
+      font-family:'Cinzel';
+      font-size: 16px;
+      color: var(--gold);
+      text-align:center;
+      margin-bottom: 6px;
+      letter-spacing:.7px;
+      position:relative;
+      z-index:1;
+      text-shadow: 0 0 18px rgba(255,209,102,.18);
+    }
+    .lock-msg{
+      font-size: 12px;
+      color:#ddd;
+      text-align:center;
+      line-height: 1.35;
+      position:relative;
+      z-index:1;
+    }
+    .lock-msg b{ color: var(--gold); }
 
-    /* Modal popup */
-    .modal-back { position: fixed; inset: 0; background: rgba(0,0,0,.7); display:none; align-items:center; justify-content:center; padding: 18px; z-index: 9999; }
+    .lock-pill{
+      margin: 10px auto 0;
+      width: fit-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      font-size: 12px;
+      color:#f0f0f0;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      position:relative;
+      z-index:1;
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse{
+      0%,100%{ transform: scale(1); opacity:.95; }
+      50%{ transform: scale(1.02); opacity:1; }
+    }
+
+    /* Found */
+    #m1-count{
+      margin-top: 14px;
+      color: var(--gold);
+      text-align:center;
+      font-family:'Cinzel';
+      letter-spacing:.7px;
+      z-index:1;
+      position:relative;
+    }
+
+    /* Modal */
+    .modal-back { position: fixed; inset: 0; background: rgba(0,0,0,.72); display:none; align-items:center; justify-content:center; padding: 18px; z-index: 9999; }
     .modal-back.show { display:flex; }
     .modal { width: min(420px, 100%); background: #0d0d0d; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; box-shadow: 0 25px 80px rgba(0,0,0,.65); overflow:hidden; }
     .modal-top{ padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,.10); display:flex; justify-content:space-between; align-items:center; gap:10px; }
@@ -100,41 +344,44 @@
 <body>
 
 <div class="game-wrap">
-  <div id="m1" class="mission active">
-    <h1>Mission 1: Thermal Hunt</h1>
-    <p class="desc">
-      Reward gates open 5 times daily (UTC-3): <b>12:00 AM</b>, <b>9:00 AM</b>, <b>1:00 PM</b>, <b>5:00 PM</b>, <b>9:00 PM</b><br>
-      Each gate stays open for <b>30 minutes</b>.
-    </p>
+  <div class="particles"></div>
 
-    <!-- DROP PANEL -->
-    <div class="drop-panel">
-      <div class="drop-top">
-        <div class="drop-kv">Gate: <b id="gateLabel">—</b></div>
-        <div id="dropBadge" class="badge closed">● Gate Closed</div>
-      </div>
-      <div class="countdown" id="dropCountdown">Loading gate schedule…</div>
-      <div class="tiny" id="dropTiny">Gate time: — (UTC-3)</div>
+  <h1>MISSION 1: THERMAL HUNT</h1>
+  <p class="desc">
+    Reward gates open <b>5 times daily</b> (UTC-3): <b>12:00 AM</b>, <b>9:00 AM</b>, <b>1:00 PM</b>, <b>5:00 PM</b>, <b>9:00 PM</b><br>
+    Each gate stays open for <b>30 minutes</b>.
+  </p>
+
+  <div class="drop-panel">
+    <div class="drop-top">
+      <div class="drop-kv">Gate: <b id="gateLabel">—</b></div>
+      <div id="dropBadge" class="badge closed">● Gate Closed</div>
     </div>
-
-    <div id="scanner-box" onmousemove="handleScan(event)" ontouchmove="handleScan(event)">
-      <div id="torch"></div>
-
-      <!-- lock overlay -->
-      <div class="lock-overlay" id="m1LockOverlay">
-        <div class="lock-card">
-          <div class="lock-title" id="lockTitle">Gate Closed</div>
-          <div class="lock-msg" id="lockMsg">Gate opens soon.</div>
-        </div>
-      </div>
-
-      <img src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png" class="mascot-target" style="top: 30px; left: 20px; width: 60px;" onclick="findMascot(this)">
-      <img src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png" class="mascot-target" style="top: 260px; left: 150px; width: 35px;" onclick="findMascot(this)">
-      <img src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png" class="mascot-target" style="top: 180px; left: 300px; width: 50px;" onclick="findMascot(this)">
-    </div>
-
-    <p id="m1-count" style="color:var(--gold); margin-top:15px;">Found: 0/3</p>
+    <div class="countdown" id="dropCountdown">Loading gate schedule…</div>
+    <div class="tiny" id="dropTiny">Gate time: — (UTC-3)</div>
   </div>
+
+  <div id="scanner-box" onmousemove="handleScan(event)" ontouchmove="handleScan(event)">
+    <div id="torch" class="hidden"></div>
+
+    <!-- HARD LOCK overlay -->
+    <div class="lock-overlay show" id="m1LockOverlay">
+      <div class="lock-card">
+        <div class="lock-title" id="lockTitle">GATE CLOSED</div>
+        <div class="lock-msg" id="lockMsg">Gate opens in <b>--:--:--</b>. Come back on time to grab the reward.</div>
+        <div class="lock-pill" id="lockPill">LOCKED</div>
+      </div>
+    </div>
+
+    <img src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png"
+         class="mascot-target" style="top: 34px; left: 22px; width: 64px;" onclick="findMascot(this)">
+    <img src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png"
+         class="mascot-target" style="top: 262px; left: 160px; width: 38px;" onclick="findMascot(this)">
+    <img src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png"
+         class="mascot-target" style="top: 182px; left: 312px; width: 54px;" onclick="findMascot(this)">
+  </div>
+
+  <p id="m1-count">Found: 0/3</p>
 </div>
 
 <div class="modal-back" id="modalBack" role="dialog" aria-modal="true">
@@ -157,8 +404,7 @@
   const API_URL = "https://script.google.com/macros/s/AKfycbznd7bbyWz675zI6w6sA-JtXYP0Op83Ilz0eXBVwZk5fosvClc7dKBEairYqxpCrdVfJQ/exec";
   const MISSION = "M1";
 
-  // Gate schedule in UTC-3 (24h clock). Each open for 30 minutes.
-  // 12:00 AM, 9:00 AM, 1:00 PM, 5:00 PM, 9:00 PM
+  // Gate schedule in UTC-3 (24h)
   const GATES = [
     { h: 0,  m: 0, label: "12:00 AM" },
     { h: 9,  m: 0, label: "9:00 AM"  },
@@ -182,7 +428,7 @@
   }
 
   /***********************
-   * ClaimKey (1 per device/browser)
+   * ClaimKey
    ***********************/
   function getClaimKey() {
     const k = localStorage.getItem("rico_claimKey");
@@ -193,12 +439,11 @@
   }
 
   /***********************
-   * API calls
+   * API
    ***********************/
   async function apiClaim() {
     const claimKey = getClaimKey();
     const body = new URLSearchParams({ action: "claim", mission: MISSION, claimKey });
-
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
@@ -208,34 +453,27 @@
   }
 
   /***********************
-   * Gate-time helpers (client-side UTC-3)
-   * NOTE: This is for UI only. Your Apps Script should still be the source of truth for cap=5.
+   * Gate time (UI only)
    ***********************/
   function nowUtc3Date(){
     return new Date(Date.now() + UTC3_OFFSET_MIN * 60 * 1000);
   }
   function pad2(n){ return String(n).padStart(2,"0"); }
-
   function formatHMS(sec){
     sec = Math.max(0, Math.floor(sec));
     const h = Math.floor(sec / 3600);
     const m = Math.floor((sec % 3600) / 60);
     const s = sec % 60;
-    return (h>0 ? `${h}:${pad2(m)}:${pad2(s)}` : `${m}:${pad2(s)}`);
+    return `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
   }
 
   function computeGateState(){
-    const d = nowUtc3Date(); // "UTC-3" time but stored as UTC fields
+    const d = nowUtc3Date();
     const Y = d.getUTCFullYear();
     const Mo = d.getUTCMonth();
     const Da = d.getUTCDate();
 
-    // Find current open gate (if any)
     const openMs = OPEN_WINDOW_MINUTES * 60 * 1000;
-
-    let currentGate = null;
-    let nextGate = null;
-
     const candidates = GATES.map(g => {
       const start = new Date(Date.UTC(Y, Mo, Da, g.h, g.m, 0));
       const end = new Date(start.getTime() + openMs);
@@ -244,18 +482,13 @@
 
     const now = new Date(Date.UTC(Y, Mo, Da, d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds()));
 
-    // open?
-    for(const c of candidates){
-      if(now >= c.start && now < c.end){
-        currentGate = c;
-        break;
-      }
+    let currentGate = null;
+    for (const c of candidates){
+      if (now >= c.start && now < c.end){ currentGate = c; break; }
     }
 
-    // next gate
-    nextGate = candidates.find(c => now < c.start);
-    if(!nextGate){
-      // next is tomorrow first gate
+    let nextGate = candidates.find(c => now < c.start);
+    if (!nextGate){
       const tomorrow = new Date(Date.UTC(Y, Mo, Da + 1, 0, 0, 0));
       const tY = tomorrow.getUTCFullYear();
       const tMo = tomorrow.getUTCMonth();
@@ -268,7 +501,7 @@
       };
     }
 
-    if(currentGate){
+    if (currentGate){
       return {
         state: "OPEN",
         gateLabel: currentGate.label,
@@ -276,6 +509,7 @@
         opensInSec: 0
       };
     }
+
     return {
       state: "CLOSED",
       gateLabel: nextGate.label,
@@ -285,25 +519,14 @@
   }
 
   /***********************
-   * UI Lock/Unlock
+   * HARD lock/unlock (fixes your issue)
    ***********************/
-  let gateState = "CLOSED"; // OPEN/CLOSED
-  function lockMission1UI(title, msg){
-    document.getElementById('m1LockOverlay').classList.add('show');
-    document.getElementById('lockTitle').innerText = title || "Gate Closed";
-    document.getElementById('lockMsg').innerHTML = msg || "Gate opens soon.";
-    document.querySelectorAll('.mascot-target').forEach(m => m.style.pointerEvents = "none");
-  }
-  function unlockMission1UI(){
-    document.getElementById('m1LockOverlay').classList.remove('show');
-    document.querySelectorAll('.mascot-target').forEach(m => {
-      if(!m.classList.contains('found')) m.style.pointerEvents = "auto";
-    });
-  }
+  let gateState = "CLOSED";
+
   function setBadge(state){
     const badge = document.getElementById("dropBadge");
     badge.className = "badge";
-    if(state === "OPEN"){
+    if (state === "OPEN"){
       badge.classList.add("live");
       badge.innerText = "● Gate LIVE";
     } else {
@@ -312,46 +535,75 @@
     }
   }
 
+  function lockMission1UI(msgHTML){
+    gateState = "CLOSED";
+    document.getElementById('m1LockOverlay').classList.add('show');
+    document.getElementById('torch').classList.add('hidden');
+
+    // IMPORTANT: stop all mascot interactions
+    document.querySelectorAll('.mascot-target').forEach(m => m.style.pointerEvents = "none");
+
+    // also force-hide all non-found mascots (so they don't glow)
+    document.querySelectorAll('.mascot-target:not(.found)').forEach(m => m.style.opacity = 0);
+
+    if (msgHTML) document.getElementById('lockMsg').innerHTML = msgHTML;
+  }
+
+  function unlockMission1UI(){
+    gateState = "OPEN";
+    document.getElementById('m1LockOverlay').classList.remove('show');
+    document.getElementById('torch').classList.remove('hidden');
+
+    document.querySelectorAll('.mascot-target').forEach(m => {
+      if(!m.classList.contains('found')) m.style.pointerEvents = "auto";
+    });
+  }
+
   function renderGateUI(){
     const g = computeGateState();
-    gateState = g.state;
 
-    // top labels
     document.getElementById("gateLabel").innerText = g.gateLabel;
 
     const d = nowUtc3Date();
-    const serverLike = `${d.getUTCFullYear()}-${pad2(d.getUTCMonth()+1)}-${pad2(d.getUTCDate())} ${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}:${pad2(d.getUTCSeconds())}`;
-    document.getElementById("dropTiny").innerText = `Gate time: ${serverLike} (UTC-3)`;
+    const t = `${d.getUTCFullYear()}-${pad2(d.getUTCMonth()+1)}-${pad2(d.getUTCDate())} ${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}:${pad2(d.getUTCSeconds())}`;
+    document.getElementById("dropTiny").innerText = `Gate time: ${t} (UTC-3)`;
 
-    if(g.state === "OPEN"){
+    if (g.state === "OPEN"){
       setBadge("OPEN");
-      document.getElementById("dropCountdown").innerText = `Gate is LIVE — closes in ${formatHMS(g.closesInSec)}`;
+      document.getElementById("dropCountdown").innerText = `GATE IS LIVE — CLOSES IN ${formatHMS(g.closesInSec)}`;
       unlockMission1UI();
-    }else{
+    } else {
       setBadge("CLOSED");
-      document.getElementById("dropCountdown").innerText = `Gate opens in ${formatHMS(g.opensInSec)}`;
-      lockMission1UI("Gate Closed", `Gate opens in <b style="color:var(--gold)">${formatHMS(g.opensInSec)}</b>.<br>Come back on time to grab the reward.`);
+      document.getElementById("dropCountdown").innerText = `GATE OPENS IN ${formatHMS(g.opensInSec)}`;
+      lockMission1UI(`Gate opens in <b>${formatHMS(g.opensInSec)}</b>.<br>Come back on time to grab the reward.`);
     }
   }
 
-  // Update UI every second (smooth countdown)
-  setInterval(renderGateUI, 1000);
-
   /***********************
-   * Mission 1 scanner mechanics (same)
+   * Scanner mechanics (BLOCK when locked)
    ***********************/
   let m1Count = 0;
+
   function handleScan(e) {
+    // ✅ HARD BLOCK: no scan updates when gate closed
+    if (gateState !== "OPEN") return;
+
     const torch = document.getElementById('torch');
     const box = document.getElementById('scanner-box').getBoundingClientRect();
-    const x = (e.clientX || e.touches[0].clientX) - box.left;
-    const y = (e.clientY || e.touches[0].clientY) - box.top;
+    const x = (e.clientX || (e.touches && e.touches[0].clientX)) - box.left;
+    const y = (e.clientY || (e.touches && e.touches[0].clientY)) - box.top;
+
     torch.style.left = x + 'px';
-    torch.style.top = y + 'px';
+    torch.style.top  = y + 'px';
+
     document.querySelectorAll('.mascot-target').forEach(m => {
-      const dist = Math.sqrt(Math.pow(x - (parseInt(m.style.left)+25), 2) + Math.pow(y - (parseInt(m.style.top)+25), 2));
+      if(m.classList.contains('found')) return;
+
+      const mx = parseInt(m.style.left) + 25;
+      const my = parseInt(m.style.top)  + 25;
+      const dist = Math.sqrt(Math.pow(x - mx, 2) + Math.pow(y - my, 2));
       if(dist < 80) m.style.opacity = (80 - dist) / 80;
-      else if(!m.classList.contains('found')) m.style.opacity = 0;
+      else m.style.opacity = 0;
     });
   }
 
@@ -361,15 +613,17 @@
     document.querySelectorAll('.mascot-target').forEach(m => {
       m.classList.remove('found');
       m.style.opacity = 0;
+      m.style.pointerEvents = "none";
     });
   }
 
   async function winMission1Claim(){
-    // Gate closed notice (your requested behavior)
+    // Your requested popup when gate closed
     if(gateState !== "OPEN"){
       const g = computeGateState();
       showModal("Gate Closed", `Gate open in <b>${formatHMS(g.opensInSec)}</b><div class="danger-tag">Please come back during the next gate.</div>`);
       resetM1();
+      renderGateUI();
       return;
     }
 
@@ -377,26 +631,24 @@
 
     const r = await apiClaim();
 
-    // NOTE: Backend should enforce cap=5 per gate.
     if(!r.ok){
-      // If your backend still returns soldOut only, keep it compatible:
       if(r.waveClosed || r.gateClosed){
         const g = computeGateState();
         showModal("Gate Closed", `Gate open in <b>${formatHMS(g.opensInSec)}</b><div class="danger-tag">Please come back during the next gate.</div>`);
         resetM1();
+        renderGateUI();
         return;
       }
       if(r.waveFull || r.gateFull){
         const g = computeGateState();
         showModal("FULLY REDEEMED", `This gate is fully redeemed.<div class="danger-tag">Next gate in <b>${formatHMS(g.opensInSec)}</b></div>`);
-        // lock overlay message
-        lockMission1UI("FULLY REDEEMED", `Next gate opens in <b style="color:var(--gold)">${formatHMS(g.opensInSec)}</b>.`);
+        lockMission1UI(`Next gate opens in <b>${formatHMS(g.opensInSec)}</b>.`);
         resetM1();
         return;
       }
       if(r.soldOut){
         showModal("Sold Out", `No vouchers left.<div class="danger-tag">Please contact support.</div>`);
-        lockMission1UI("SOLD OUT", `No vouchers left for this event.`);
+        lockMission1UI(`No vouchers left for this event.`);
         resetM1();
         return;
       }
@@ -412,20 +664,24 @@
        <div class="small">Use this code to redeem your reward.</div>`
     );
 
-    // After success, lock UI so user doesn't re-claim in same device
-    lockMission1UI("Claimed ✅", "You have already claimed for this gate.");
+    lockMission1UI(`You have already claimed for this gate.`);
   }
 
   function findMascot(el) {
-    if(gateState !== "OPEN") return;
+    // ✅ HARD BLOCK
+    if (gateState !== "OPEN") return;
+
     if(!el.classList.contains('found')) {
-      el.classList.add('found'); m1Count++;
+      el.classList.add('found');
+      el.style.opacity = 1;
+      m1Count++;
       document.getElementById('m1-count').innerText = `Found: ${m1Count}/3`;
       if(m1Count === 3) setTimeout(() => winMission1Claim(), 450);
     }
   }
 
-  // initial render
+  // Smooth countdown
+  setInterval(renderGateUI, 1000);
   renderGateUI();
 </script>
 </body>
