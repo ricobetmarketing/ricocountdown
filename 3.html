@@ -1,254 +1,432 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rico.bet VIP Expert Missions</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
-    <style>
-        :root { --gold: #ffd166; --dark: #0b0604; --neon: #22d3ee; --paper: #f2e3c9; }
-        body { background: var(--dark); color: white; font-family: 'Orbitron', sans-serif; margin: 0; display: flex; justify-content: center; }
-        .game-wrap { max-width: 450px; width: 100%; margin: 20px auto; padding: 20px; border: 2px solid var(--gold); border-radius: 20px; background: #111; min-height: 600px; display: flex; flex-direction: column; position: relative; }
-        .mission { display: none; flex-direction: column; align-items: center; flex: 1; }
-        .active { display: flex; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rico.bet VIP Expert Missions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --gold:#ffd166; --dark:#0b0604; --neon:#22d3ee; --danger:#ef4444; --muted:#9ca3af; }
+    body { background: var(--dark); color: white; font-family: 'Orbitron', sans-serif; margin: 0; display: flex; justify-content: center; }
 
-        h1 { font-family: 'Cinzel'; color: var(--gold); font-size: 1.3rem; text-shadow: 0 0 10px rgba(255,209,102,0.3); margin-bottom: 5px; }
-        .desc { font-size: 0.8rem; color: #888; margin-bottom: 20px; text-align: center; }
+    .game-wrap { max-width: 450px; width: 100%; margin: 20px auto; padding: 20px; border: 2px solid var(--gold); border-radius: 20px; background: #111; min-height: 600px; display: flex; flex-direction: column; }
+    .mission { display: none; flex-direction: column; align-items: center; flex: 1; }
+    .active { display: flex; animation: fadeIn 0.5s; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Slot Tracker UI */
-        .slot-tracker { background: rgba(255, 209, 102, 0.1); border: 1px solid var(--gold); border-radius: 12px; padding: 12px; width: 100%; margin-bottom: 20px; text-align: center; }
-        .slot-text { font-size: 0.75rem; color: var(--gold); font-weight: bold; display: block; margin-bottom: 5px; }
-        .progress-bg { width: 100%; height: 8px; background: #333; border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), #ffaa00); transition: width 1s ease-in-out; }
+    h1 { font-family: 'Cinzel'; color: var(--gold); font-size: 1.3rem; text-shadow: 0 0 10px rgba(255,209,102,0.3); margin: 0 0 8px; }
+    .desc { font-size: 0.8rem; color: #888; margin-bottom: 14px; text-align: center; }
 
-        /* M1: Thermal Search */
-        #scanner-box { position: relative; width: 100%; height: 350px; background: #000; border-radius: 15px; overflow: hidden; cursor: none; border: 1px solid #333; }
-        #torch { position: absolute; width: 140px; height: 140px; background: radial-gradient(circle, rgba(255,209,102,0.25) 0%, transparent 70%); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 10; }
-        .mascot-target { position: absolute; opacity: 0; transition: opacity 0.3s; cursor: pointer; }
-        .mascot-target.found { opacity: 1 !important; filter: drop-shadow(0 0 10px var(--gold)); pointer-events: none; }
+    /* Drop panel */
+    .drop-panel{
+      width: 100%;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      border-radius: 14px;
+      padding: 12px;
+      margin: 6px 0 14px;
+    }
+    .drop-top{ display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap; }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 8px 10px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      font-size: 12px;
+    }
+    .badge.live{ border-color: rgba(34,211,238,.35); background: rgba(34,211,238,.12); color: #c9fbff; }
+    .badge.closed{ border-color: rgba(255,255,255,.14); color: #ddd; }
+    .badge.full{ border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.12); color: #ffd1d1; }
 
-        /* M2: Pipe Logic */
-        .pipe-grid { display: grid; grid-template-columns: repeat(4, 80px); gap: 10px; padding: 15px; background: #050505; border-radius: 10px; border: 1px solid #222; }
-        .pipe-cell { width: 80px; height: 80px; background: #1a1a1a; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid #333; }
-        .pipe-svg { width: 70%; height: 70%; stroke: #444; stroke-width: 12; fill: none; transition: 0.4s; }
-        .active-pipe .pipe-svg { stroke: var(--neon); filter: drop-shadow(0 0 8px var(--neon)); }
+    .drop-kv{ font-size: 12px; color: #cfcfcf; }
+    .drop-kv b{ color: var(--gold); }
+    .countdown{
+      margin-top: 8px;
+      font-family: 'Cinzel';
+      letter-spacing: .6px;
+      color: var(--gold);
+      font-size: 14px;
+      text-align: center;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px dashed rgba(255,209,102,.45);
+      background: rgba(255,255,255,.03);
+    }
+    .tiny{ margin-top: 8px; font-size: 11px; color: var(--muted); text-align:center; }
 
-        /* M3: Dial Logic */
-        .dial-container { position: relative; width: 260px; height: 260px; margin-top: 30px; }
-        #dial { width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(#333, #111); border: 8px solid #444; position: relative; transition: transform 0.1s; cursor: grab; }
-        .dial-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: #222; border-radius: 50%; border: 2px solid #444; display: flex; align-items: center; justify-content: center; color: var(--gold); font-weight: bold; }
+    /* Scanner */
+    #scanner-box { position: relative; width: 100%; height: 350px; background: #000; border-radius: 15px; overflow: hidden; cursor: none; border: 1px solid #333; }
+    #torch { position: absolute; width: 140px; height: 140px; background: radial-gradient(circle, rgba(255,209,102,0.25) 0%, transparent 70%); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 10; }
+    .mascot-target { position: absolute; opacity: 0; transition: opacity 0.3s; cursor: pointer; }
+    .mascot-target.found { opacity: 1 !important; filter: drop-shadow(0 0 10px var(--gold)); pointer-events: none; }
 
-        .btn { background: var(--gold); color: black; border: none; padding: 12px 35px; border-radius: 50px; font-weight: bold; cursor: pointer; font-family: 'Cinzel'; margin-top: 30px; }
-        .btn:disabled { background: #444; color: #888; cursor: not-allowed; }
-    </style>
+    /* Lock overlay for scanner */
+    .lock-overlay{
+      position:absolute; inset:0;
+      display:none; align-items:center; justify-content:center;
+      background: radial-gradient(circle at 50% 35%, rgba(0,0,0,.35), rgba(0,0,0,.85));
+      z-index: 20;
+      text-align:center;
+      padding: 18px;
+    }
+    .lock-overlay.show{ display:flex; }
+    .lock-card{
+      width: 100%;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 16px;
+      background: rgba(0,0,0,.45);
+      padding: 14px;
+      box-shadow: 0 20px 70px rgba(0,0,0,.6);
+    }
+    .lock-title{ font-family:'Cinzel'; color: var(--gold); font-size: 16px; margin-bottom: 6px; }
+    .lock-msg{ font-size: 12px; color: #ddd; line-height: 1.35; }
+    .lock-msg .red{ color: #ffd1d1; }
+
+    /* Modal popup */
+    .modal-back { position: fixed; inset: 0; background: rgba(0,0,0,.7); display:none; align-items:center; justify-content:center; padding: 18px; z-index: 9999; }
+    .modal-back.show { display:flex; }
+    .modal { width: min(420px, 100%); background: #0d0d0d; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; box-shadow: 0 25px 80px rgba(0,0,0,.65); overflow:hidden; }
+    .modal-top{ padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,.10); display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .modal-title{ font-family:'Cinzel'; color: var(--gold); font-size: 14px; letter-spacing:.5px; }
+    .modal-x{ border:none; cursor:pointer; width: 36px; height: 36px; border-radius: 12px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); color:white; }
+    .modal-body{ padding: 14px; color: #ddd; font-size: 13px; line-height: 1.4; }
+    .modal-actions{ padding: 0 14px 14px; display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
+    .modal-ok{ background: var(--gold); color:#000; border:none; padding: 10px 16px; border-radius: 12px; cursor:pointer; font-family:'Cinzel'; font-weight:bold; }
+    .danger-tag{ display:inline-flex; align-items:center; gap:8px; padding: 8px 10px; border-radius: 12px; border: 1px solid rgba(239,68,68,.35); background: rgba(239,68,68,.12); color: #ffd1d1; margin-top: 10px; }
+    .code-box{ margin-top: 10px; user-select: all; padding: 10px 12px; border-radius: 12px; border: 1px dashed rgba(255,209,102,.55); color: var(--gold); background: rgba(255,255,255,.05); text-align:center; font-family:'Cinzel'; letter-spacing:.6px; }
+    .small{ font-size:12px; color:#aaa; margin-top:10px; }
+  </style>
 </head>
 <body>
 
 <div class="game-wrap">
-    <div id="m1" class="mission active">
-        <h1>Mission 1: 热力搜寻</h1>
-        
-        <div class="slot-tracker">
-            <span class="slot-text">🔥 限量名额剩余: <span id="m1-slots">--</span> / 100</span>
-            <div class="progress-bg"><div id="m1-bar" class="progress-fill" style="width: 100%;"></div></div>
+  <div id="m1" class="mission active">
+    <h1>Mission 1: Thermal Hunt</h1>
+    <p class="desc">
+      Reward gates open 5 times daily (UTC-3): <b>12:00 AM</b>, <b>9:00 AM</b>, <b>1:00 PM</b>, <b>5:00 PM</b>, <b>9:00 PM</b><br>
+      Each gate stays open for <b>30 minutes</b>.
+    </p>
+
+    <!-- DROP PANEL -->
+    <div class="drop-panel">
+      <div class="drop-top">
+        <div class="drop-kv">Gate: <b id="gateLabel">—</b></div>
+        <div id="dropBadge" class="badge closed">● Gate Closed</div>
+      </div>
+      <div class="countdown" id="dropCountdown">Loading gate schedule…</div>
+      <div class="tiny" id="dropTiny">Gate time: — (UTC-3)</div>
+    </div>
+
+    <div id="scanner-box" onmousemove="handleScan(event)" ontouchmove="handleScan(event)">
+      <div id="torch"></div>
+
+      <!-- lock overlay -->
+      <div class="lock-overlay" id="m1LockOverlay">
+        <div class="lock-card">
+          <div class="lock-title" id="lockTitle">Gate Closed</div>
+          <div class="lock-msg" id="lockMsg">Gate opens soon.</div>
         </div>
+      </div>
 
-        <p class="desc" id="m1-desc">在黑暗中找到 3 个吉祥物即领限量奖励</p>
-        
-        <div id="scanner-box" onmousemove="handleScan(event)" ontouchmove="handleScan(event)">
-            <div id="torch"></div>
-            <img src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png" class="mascot-target" style="top: 30px; left: 20px; width: 60px;" onclick="findMascot(this)">
-            <img src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png" class="mascot-target" style="top: 260px; left: 150px; width: 35px;" onclick="findMascot(this)">
-            <img src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png" class="mascot-target" style="top: 180px; left: 300px; width: 50px;" onclick="findMascot(this)">
-        </div>
-        <p id="m1-count" style="color:var(--gold); margin-top:15px; font-weight:bold;">已找到: 0/3</p>
+      <img src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png" class="mascot-target" style="top: 30px; left: 20px; width: 60px;" onclick="findMascot(this)">
+      <img src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png" class="mascot-target" style="top: 260px; left: 150px; width: 35px;" onclick="findMascot(this)">
+      <img src="https://ricobr.ft-crm.com/media-api/serve/9cc65950-210b-4f56-995f-e4a94dd1d82c_2.png" class="mascot-target" style="top: 180px; left: 300px; width: 50px;" onclick="findMascot(this)">
     </div>
 
-    <div id="m2" class="mission">
-        <h1>Mission 2: 逻辑电路</h1>
-        <p class="desc">旋转管道将 INLET 连接到 EXIT</p>
-        <div class="pipe-grid" id="pipeGrid"></div>
-        <button class="btn" id="m2-btn" disabled onclick="win('PIPE-MASTER-77')">激活系统</button>
-    </div>
+    <p id="m1-count" style="color:var(--gold); margin-top:15px;">Found: 0/3</p>
+  </div>
+</div>
 
-    <div id="m3" class="mission">
-        <h1>Mission 3: 金库密码</h1>
-        <p class="desc">寻找 3 个正确密码位置</p>
-        <div class="dial-container">
-            <div id="dial" onmousedown="startRotate(event)" ontouchstart="startRotate(event)">
-                <div class="dial-center" id="dialDisplay">0</div>
-            </div>
-        </div>
-        <p id="vault-status" style="margin-top:20px; color:var(--gold)">进度: 0 / 3</p>
+<div class="modal-back" id="modalBack" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-top">
+      <div class="modal-title" id="modalTitle">Notice</div>
+      <button class="modal-x" onclick="hideModal()">✕</button>
     </div>
-
-    <div style="margin-top:auto; opacity:0.1; font-size:10px; padding-top:20px;">
-        <span onclick="switchM('m1')">M1</span> | <span onclick="switchM('m2')">M2</span> | <span onclick="switchM('m3')">M3</span> | <span onclick="localStorage.clear();location.reload();">RESET</span>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="modal-ok" onclick="hideModal()">OK</button>
     </div>
+  </div>
 </div>
 
 <script>
-    /***********************************************************
-     * MISSION 1: RANDOMIZED GLOBAL SLOT LOGIC
-     ***********************************************************/
-    const VOUCHERS = Array.from({length: 100}, (_, i) => `RICO-FS-${3000 + i}`);
-    
-    // 1. Generate a Unique Player Seed so every browser gets a different code
-    let playerSeed = localStorage.getItem('rico_player_seed');
-    if (!playerSeed) {
-        playerSeed = Math.floor(Math.random() * 100);
-        localStorage.setItem('rico_player_seed', playerSeed);
+  /***********************
+   * CONFIG
+   ***********************/
+  const API_URL = "https://script.google.com/macros/s/AKfycbznd7bbyWz675zI6w6sA-JtXYP0Op83Ilz0eXBVwZk5fosvClc7dKBEairYqxpCrdVfJQ/exec";
+  const MISSION = "M1";
+
+  // Gate schedule in UTC-3 (24h clock). Each open for 30 minutes.
+  // 12:00 AM, 9:00 AM, 1:00 PM, 5:00 PM, 9:00 PM
+  const GATES = [
+    { h: 0,  m: 0, label: "12:00 AM" },
+    { h: 9,  m: 0, label: "9:00 AM"  },
+    { h: 13, m: 0, label: "1:00 PM"  },
+    { h: 17, m: 0, label: "5:00 PM"  },
+    { h: 21, m: 0, label: "9:00 PM"  },
+  ];
+  const OPEN_WINDOW_MINUTES = 30;
+  const UTC3_OFFSET_MIN = -180; // UTC-3
+
+  /***********************
+   * Modal
+   ***********************/
+  function showModal(title, html){
+    document.getElementById('modalTitle').innerText = title || "Notice";
+    document.getElementById('modalBody').innerHTML = html || "";
+    document.getElementById('modalBack').classList.add('show');
+  }
+  function hideModal(){
+    document.getElementById('modalBack').classList.remove('show');
+  }
+
+  /***********************
+   * ClaimKey (1 per device/browser)
+   ***********************/
+  function getClaimKey() {
+    const k = localStorage.getItem("rico_claimKey");
+    if (k) return k;
+    const newK = "CK-" + Math.random().toString(36).slice(2) + "-" + Date.now();
+    localStorage.setItem("rico_claimKey", newK);
+    return newK;
+  }
+
+  /***********************
+   * API calls
+   ***********************/
+  async function apiClaim() {
+    const claimKey = getClaimKey();
+    const body = new URLSearchParams({ action: "claim", mission: MISSION, claimKey });
+
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+      body
+    });
+    return res.json();
+  }
+
+  /***********************
+   * Gate-time helpers (client-side UTC-3)
+   * NOTE: This is for UI only. Your Apps Script should still be the source of truth for cap=5.
+   ***********************/
+  function nowUtc3Date(){
+    return new Date(Date.now() + UTC3_OFFSET_MIN * 60 * 1000);
+  }
+  function pad2(n){ return String(n).padStart(2,"0"); }
+
+  function formatHMS(sec){
+    sec = Math.max(0, Math.floor(sec));
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    return (h>0 ? `${h}:${pad2(m)}:${pad2(s)}` : `${m}:${pad2(s)}`);
+  }
+
+  function computeGateState(){
+    const d = nowUtc3Date(); // "UTC-3" time but stored as UTC fields
+    const Y = d.getUTCFullYear();
+    const Mo = d.getUTCMonth();
+    const Da = d.getUTCDate();
+
+    // Find current open gate (if any)
+    const openMs = OPEN_WINDOW_MINUTES * 60 * 1000;
+
+    let currentGate = null;
+    let nextGate = null;
+
+    const candidates = GATES.map(g => {
+      const start = new Date(Date.UTC(Y, Mo, Da, g.h, g.m, 0));
+      const end = new Date(start.getTime() + openMs);
+      return { ...g, start, end };
+    });
+
+    const now = new Date(Date.UTC(Y, Mo, Da, d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds()));
+
+    // open?
+    for(const c of candidates){
+      if(now >= c.start && now < c.end){
+        currentGate = c;
+        break;
+      }
     }
 
-    // 2. Simulated Global Counter (Decreases over time based on current hour)
-    function getSimulatedSlots() {
-        const now = new Date();
-        const hour = now.getHours();
-        const minute = now.getMinutes();
-        // Calculation: Slots drop as the day progresses
-        let baseSold = (hour * 4) + Math.floor(minute / 2); 
-        return Math.max(5, 100 - baseSold); 
+    // next gate
+    nextGate = candidates.find(c => now < c.start);
+    if(!nextGate){
+      // next is tomorrow first gate
+      const tomorrow = new Date(Date.UTC(Y, Mo, Da + 1, 0, 0, 0));
+      const tY = tomorrow.getUTCFullYear();
+      const tMo = tomorrow.getUTCMonth();
+      const tDa = tomorrow.getUTCDate();
+      const g0 = GATES[0];
+      nextGate = {
+        ...g0,
+        start: new Date(Date.UTC(tY, tMo, tDa, g0.h, g0.m, 0)),
+        end: new Date(Date.UTC(tY, tMo, tDa, g0.h, g0.m, 0) + openMs)
+      };
     }
 
-    let m1Count = 0;
-    let isM1Finished = localStorage.getItem('m1_claimed') === 'true';
-
-    function updateSlotUI() {
-        const slots = getSimulatedSlots();
-        document.getElementById('m1-slots').innerText = slots;
-        document.getElementById('m1-bar').style.width = slots + "%";
-        
-        if (slots <= 5 && !isM1Finished) {
-            document.getElementById('m1-desc').innerText = "❌ 抱歉！今日名额已满";
-            document.getElementById('scanner-box').style.opacity = "0.2";
-            document.getElementById('scanner-box').style.pointerEvents = "none";
-        }
+    if(currentGate){
+      return {
+        state: "OPEN",
+        gateLabel: currentGate.label,
+        closesInSec: (currentGate.end.getTime() - now.getTime()) / 1000,
+        opensInSec: 0
+      };
     }
-
-    window.onload = function() {
-        updateSlotUI();
-        if (isM1Finished) {
-            const myCode = localStorage.getItem('m1_code');
-            document.getElementById('m1-count').innerHTML = `您的唯一奖励码: <b style="color:var(--neon)">${myCode}</b>`;
-        }
-        setInterval(updateSlotUI, 30000); // Update every 30s
+    return {
+      state: "CLOSED",
+      gateLabel: nextGate.label,
+      closesInSec: 0,
+      opensInSec: (nextGate.start.getTime() - now.getTime()) / 1000
     };
+  }
 
-    function findMascot(el) {
-        if (isM1Finished) return;
-        if (!el.classList.contains('found')) {
-            el.classList.add('found');
-            m1Count++;
-            document.getElementById('m1-count').innerText = `已找到: ${m1Count}/3`;
-            if (m1Count === 3) {
-                // Assign a unique code based on the player's seed
-                const myCode = VOUCHERS[playerSeed];
-                isM1Finished = true;
-                localStorage.setItem('m1_claimed', 'true');
-                localStorage.setItem('m1_code', myCode);
-                
-                setTimeout(() => {
-                    alert("Mission 1 Complete!\nYour Unique Code: " + myCode);
-                    document.getElementById('m1-count').innerHTML = `您的唯一奖励码: <b style="color:var(--neon)">${myCode}</b>`;
-                }, 500);
-            }
-        }
+  /***********************
+   * UI Lock/Unlock
+   ***********************/
+  let gateState = "CLOSED"; // OPEN/CLOSED
+  function lockMission1UI(title, msg){
+    document.getElementById('m1LockOverlay').classList.add('show');
+    document.getElementById('lockTitle').innerText = title || "Gate Closed";
+    document.getElementById('lockMsg').innerHTML = msg || "Gate opens soon.";
+    document.querySelectorAll('.mascot-target').forEach(m => m.style.pointerEvents = "none");
+  }
+  function unlockMission1UI(){
+    document.getElementById('m1LockOverlay').classList.remove('show');
+    document.querySelectorAll('.mascot-target').forEach(m => {
+      if(!m.classList.contains('found')) m.style.pointerEvents = "auto";
+    });
+  }
+  function setBadge(state){
+    const badge = document.getElementById("dropBadge");
+    badge.className = "badge";
+    if(state === "OPEN"){
+      badge.classList.add("live");
+      badge.innerText = "● Gate LIVE";
+    } else {
+      badge.classList.add("closed");
+      badge.innerText = "● Gate Closed";
     }
+  }
 
-    // --- M1 Scanner (Original) ---
-    function handleScan(e) {
-        if (isM1Finished) return;
-        const torch = document.getElementById('torch');
-        const box = document.getElementById('scanner-box').getBoundingClientRect();
-        const x = (e.clientX || e.touches[0].clientX) - box.left;
-        const y = (e.clientY || e.touches[0].clientY) - box.top;
-        torch.style.left = x + 'px';
-        torch.style.top = y + 'px';
-        document.querySelectorAll('.mascot-target').forEach(m => {
-            const mx = parseInt(m.style.left) + 25;
-            const my = parseInt(m.style.top) + 25;
-            const dist = Math.sqrt(Math.pow(x - mx, 2) + Math.pow(y - my, 2));
-            if(dist < 80) m.style.opacity = (80 - dist) / 80;
-            else if(!m.classList.contains('found')) m.style.opacity = 0;
-        });
-    }
+  function renderGateUI(){
+    const g = computeGateState();
+    gateState = g.state;
 
-    /***********************************************************
-     * MISSION 2 & 3: YOUR ORIGINAL LOGIC (UNTOUCHED)
-     ***********************************************************/
-    function switchM(id) {
-        document.querySelectorAll('.mission').forEach(m => m.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        if(id === 'm2') initPipeGame();
-    }
+    // top labels
+    document.getElementById("gateLabel").innerText = g.gateLabel;
 
-    function win(code) { alert("Mission Complete! Code: " + code); }
+    const d = nowUtc3Date();
+    const serverLike = `${d.getUTCFullYear()}-${pad2(d.getUTCMonth()+1)}-${pad2(d.getUTCDate())} ${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}:${pad2(d.getUTCSeconds())}`;
+    document.getElementById("dropTiny").innerText = `Gate time: ${serverLike} (UTC-3)`;
 
-    const gridDim = 4;
-    let pipes = [];
-    function initPipeGame() {
-        const grid = document.getElementById('pipeGrid'); grid.innerHTML = ''; pipes = [];
-        for(let i=0; i<gridDim*gridDim; i++) {
-            const type = Math.random() > 0.5 ? 1 : 0;
-            const rot = Math.floor(Math.random()*4) * 90;
-            const cell = document.createElement('div');
-            cell.className = 'pipe-cell';
-            cell.innerHTML = `<svg class="pipe-svg" viewBox="0 0 100 100">${type===0 ? '<path d="M50 0 L50 100" />' : '<path d="M50 0 Q50 50 100 50" />'}</svg>`;
-            cell.style.transform = `rotate(${rot}deg)`;
-            const pObj = { el: cell, type, rot, x: i%gridDim, y: Math.floor(i/gridDim) };
-            cell.onclick = () => { pObj.rot = (pObj.rot+90)%360; cell.style.transform=`rotate(${pObj.rot}deg)`; checkPath(); };
-            pipes.push(pObj); grid.appendChild(cell);
-        }
-        checkPath();
+    if(g.state === "OPEN"){
+      setBadge("OPEN");
+      document.getElementById("dropCountdown").innerText = `Gate is LIVE — closes in ${formatHMS(g.closesInSec)}`;
+      unlockMission1UI();
+    }else{
+      setBadge("CLOSED");
+      document.getElementById("dropCountdown").innerText = `Gate opens in ${formatHMS(g.opensInSec)}`;
+      lockMission1UI("Gate Closed", `Gate opens in <b style="color:var(--gold)">${formatHMS(g.opensInSec)}</b>.<br>Come back on time to grab the reward.`);
     }
-    function getConns(p) {
-        const r = p.rot;
-        if(p.type === 0) return r%180===0?['N','S']:['E','W'];
-        if(r===0)return['N','E']; if(r===90)return['E','S']; if(r===180)return['S','W']; return['W','N'];
-    }
-    function checkPath() {
-        document.querySelectorAll('.pipe-cell').forEach(c => c.classList.remove('active-pipe'));
-        let active = new Set(); let q = [0];
-        while(q.length > 0) {
-            let i = q.shift(); if(active.has(i)) continue; active.add(i);
-            pipes[i].el.classList.add('active-pipe');
-            const c = getConns(pipes[i]);
-            const n = {N:[0,-1,'S'],S:[0,1,'N'],E:[1,0,'W'],W:[-1,0,'E']};
-            for(let d in n) {
-                if(c.includes(d)){
-                    const nx=pipes[i].x+n[d][0], ny=pipes[i].y+n[d][1];
-                    if(nx>=0 && nx<4 && ny>=0 && ny<4){
-                        const ni = ny*4+nx; if(getConns(pipes[ni]).includes(n[d][2])) q.push(ni);
-                    }
-                }
-            }
-        }
-        document.getElementById('m2-btn').disabled = !active.has(15);
+  }
+
+  // Update UI every second (smooth countdown)
+  setInterval(renderGateUI, 1000);
+
+  /***********************
+   * Mission 1 scanner mechanics (same)
+   ***********************/
+  let m1Count = 0;
+  function handleScan(e) {
+    const torch = document.getElementById('torch');
+    const box = document.getElementById('scanner-box').getBoundingClientRect();
+    const x = (e.clientX || e.touches[0].clientX) - box.left;
+    const y = (e.clientY || e.touches[0].clientY) - box.top;
+    torch.style.left = x + 'px';
+    torch.style.top = y + 'px';
+    document.querySelectorAll('.mascot-target').forEach(m => {
+      const dist = Math.sqrt(Math.pow(x - (parseInt(m.style.left)+25), 2) + Math.pow(y - (parseInt(m.style.top)+25), 2));
+      if(dist < 80) m.style.opacity = (80 - dist) / 80;
+      else if(!m.classList.contains('found')) m.style.opacity = 0;
+    });
+  }
+
+  function resetM1(){
+    m1Count = 0;
+    document.getElementById('m1-count').innerText = `Found: 0/3`;
+    document.querySelectorAll('.mascot-target').forEach(m => {
+      m.classList.remove('found');
+      m.style.opacity = 0;
+    });
+  }
+
+  async function winMission1Claim(){
+    // Gate closed notice (your requested behavior)
+    if(gateState !== "OPEN"){
+      const g = computeGateState();
+      showModal("Gate Closed", `Gate open in <b>${formatHMS(g.opensInSec)}</b><div class="danger-tag">Please come back during the next gate.</div>`);
+      resetM1();
+      return;
     }
 
-    let targetCodes = [45, 120, 280]; let currentStep = 0;
-    function startRotate(e) {
-        const dial = document.getElementById('dial'); const rect = dial.getBoundingClientRect();
-        const center = { x: rect.left + rect.width/2, y: rect.top + rect.height/2 };
-        const move = (me) => {
-            const cx = me.clientX || me.touches[0].clientX; const cy = me.clientY || me.touches[0].clientY;
-            const angle = Math.atan2(cy-center.y, cx-center.x) * 180 / Math.PI + 90;
-            let rot = (angle + 360) % 360; dial.style.transform = `rotate(${rot}deg)`;
-            const disp = Math.floor(rot); document.getElementById('dialDisplay').innerText = disp;
-            document.getElementById('dialDisplay').style.color = Math.abs(disp - targetCodes[currentStep]) < 5 ? 'var(--neon)' : 'var(--gold)';
-        };
-        const stop = () => {
-            window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', stop);
-            window.removeEventListener('touchmove', move); window.removeEventListener('touchend', stop);
-            if(Math.abs(parseInt(document.getElementById('dialDisplay').innerText) - targetCodes[currentStep]) < 5) {
-                currentStep++; document.getElementById('vault-status').innerText = `进度: ${currentStep} / 3`;
-                if(currentStep === 3) win('VAULT-77');
-            }
-        };
-        window.addEventListener('mousemove', move); window.addEventListener('mouseup', stop);
-        window.addEventListener('touchmove', move, {passive:false}); window.addEventListener('touchend', stop);
+    showModal("Checking…", `Verifying availability…`);
+
+    const r = await apiClaim();
+
+    // NOTE: Backend should enforce cap=5 per gate.
+    if(!r.ok){
+      // If your backend still returns soldOut only, keep it compatible:
+      if(r.waveClosed || r.gateClosed){
+        const g = computeGateState();
+        showModal("Gate Closed", `Gate open in <b>${formatHMS(g.opensInSec)}</b><div class="danger-tag">Please come back during the next gate.</div>`);
+        resetM1();
+        return;
+      }
+      if(r.waveFull || r.gateFull){
+        const g = computeGateState();
+        showModal("FULLY REDEEMED", `This gate is fully redeemed.<div class="danger-tag">Next gate in <b>${formatHMS(g.opensInSec)}</b></div>`);
+        // lock overlay message
+        lockMission1UI("FULLY REDEEMED", `Next gate opens in <b style="color:var(--gold)">${formatHMS(g.opensInSec)}</b>.`);
+        resetM1();
+        return;
+      }
+      if(r.soldOut){
+        showModal("Sold Out", `No vouchers left.<div class="danger-tag">Please contact support.</div>`);
+        lockMission1UI("SOLD OUT", `No vouchers left for this event.`);
+        resetM1();
+        return;
+      }
+      showModal("Error", `Cannot claim right now.<div class="danger-tag">${(r.error || "unknown error")}</div>`);
+      resetM1();
+      return;
     }
+
+    showModal(
+      r.alreadyClaimed ? "Already Claimed" : "Mission 1 Completed ✅",
+      `Your Voucher Code:
+       <div class="code-box">${r.voucher}</div>
+       <div class="small">Use this code to redeem your reward.</div>`
+    );
+
+    // After success, lock UI so user doesn't re-claim in same device
+    lockMission1UI("Claimed ✅", "You have already claimed for this gate.");
+  }
+
+  function findMascot(el) {
+    if(gateState !== "OPEN") return;
+    if(!el.classList.contains('found')) {
+      el.classList.add('found'); m1Count++;
+      document.getElementById('m1-count').innerText = `Found: ${m1Count}/3`;
+      if(m1Count === 3) setTimeout(() => winMission1Claim(), 450);
+    }
+  }
+
+  // initial render
+  renderGateUI();
 </script>
 </body>
 </html>
