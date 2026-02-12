@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limited Time Reward</title>
+    <style>
+        :root {
+            --primary-red: #ff4d4d;
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --accent-blue: #58a6ff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            background: #161b22;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        #timer {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--primary-red);
+            font-variant-numeric: tabular-nums;
+            margin-bottom: 1rem;
+        }
+
+        .panic { animation: pulse 1s infinite alternate; }
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
+
+        #code-container {
+            position: relative;
+            margin-top: 1rem;
+            padding: 1.5rem;
+            background: #0d1117;
+            border-radius: 8px;
+            border: 2px solid #30363d;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        #code-container:hover:not(.locked) {
+            border-color: var(--accent-blue);
+        }
+
+        #reward-code {
+            font-family: monospace;
+            font-size: 1.8rem;
+            color: var(--accent-blue);
+            transition: filter 4s ease, opacity 3s ease;
+        }
+
+        /* The Loss State */
+        .blurred {
+            filter: blur(15px);
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        .locked { cursor: default; border-color: #30363d !important; }
+
+        #copy-hint {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #8b949e;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="timer">05:00</div>
+        
+        <div id="code-container" onclick="copyCode()">
+            <div id="reward-code">GT-7729-XPL</div>
+        </div>
+        <div id="copy-hint">Click code to copy</div>
+
+        <p id="status-msg" style="margin-top: 20px;">Redeem now before it's gone.</p>
+    </div>
+
+    <script>
+        const COUNTDOWN_MINUTES = 5;
+        const STORAGE_KEY = 'fasttrack_timer_start';
+        const codeElement = document.getElementById('reward-code');
+        const timerElement = document.getElementById('timer');
+        const containerElement = document.getElementById('code-container');
+        const hintElement = document.getElementById('copy-hint');
+
+        let startTime = localStorage.getItem(STORAGE_KEY);
+        const totalSeconds = COUNTDOWN_MINUTES * 60;
+
+        if (!startTime) {
+            startTime = Date.now();
+            localStorage.setItem(STORAGE_KEY, startTime);
+        }
+
+        function copyCode() {
+            if (codeElement.classList.contains('blurred')) return;
+
+            const text = codeElement.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalHint = hintElement.innerText;
+                hintElement.innerText = "COPIED!";
+                hintElement.style.color = "#3fb950";
+                setTimeout(() => {
+                    hintElement.innerText = originalHint;
+                    hintElement.style.color = "#8b949e";
+                }, 2000);
+            });
+        }
+
+        function update() {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const remaining = totalSeconds - elapsed;
+
+            if (remaining <= 0) {
+                timerElement.innerHTML = "00:00";
+                timerElement.classList.remove('panic');
+                codeElement.classList.add('blurred');
+                containerElement.classList.add('locked');
+                hintElement.innerHTML = "TOO LATE";
+                hintElement.style.color = "#ff4d4d";
+                clearInterval(interval);
+            } else {
+                const mins = Math.floor(remaining / 60);
+                const secs = remaining % 60;
+                timerElement.innerHTML = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                if (remaining <= 60) timerElement.classList.add('panic');
+            }
+        }
+
+        const interval = setInterval(update, 1000);
+        update();
+    </script>
+</body>
+</html>
