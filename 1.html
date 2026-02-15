@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Limited Time Reward</title>
+    <title>Recompensa por Tempo Limitado</title>
     <style>
         :root {
             --primary-red: #ff4d4d;
@@ -91,11 +91,11 @@
         <div id="timer">05:00</div>
         
         <div id="code-container" onclick="copyCode()">
-            <div id="reward-code">GT-7729-XPL</div>
+            <div id="reward-code">y792Hk</div>
         </div>
-        <div id="copy-hint">Click code to copy</div>
+        <div id="copy-hint">Clique no código para copiar</div>
 
-        <p id="status-msg" style="margin-top: 20px;">Redeem now before it's gone.</p>
+        <p id="status-msg" style="margin-top: 20px;">Resgate agora antes que acabe.</p>
     </div>
 
     <script>
@@ -120,7 +120,7 @@
             const text = codeElement.innerText;
             navigator.clipboard.writeText(text).then(() => {
                 const originalHint = hintElement.innerText;
-                hintElement.innerText = "COPIED!";
+                hintElement.innerText = "COPIADO!";
                 hintElement.style.color = "#3fb950";
                 setTimeout(() => {
                     hintElement.innerText = originalHint;
@@ -138,7 +138,7 @@
                 timerElement.classList.remove('panic');
                 codeElement.classList.add('blurred');
                 containerElement.classList.add('locked');
-                hintElement.innerHTML = "TOO LATE";
+                hintElement.innerHTML = "TARDE DEMAIS";
                 hintElement.style.color = "#ff4d4d";
                 clearInterval(interval);
             } else {
